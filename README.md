@@ -33,17 +33,6 @@ The details, down to the addresses in the game's code, are in [docs/findings.md]
   [Tzar: The Burden of the Crown][tzar], game version 1.10. Other versions (GOG, the original CD) are untested.
 - The mod will never include game files. You need the game installed; the mod only changes it.
 
-## Known issues
-
-- Only the layout with the panel on the left works. With the panel at the bottom or on the right, its buttons end up
-  in the wrong places ([#5](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/5)).
-- On Linux (Proton), the game can refuse to start with "Invalid TZAR configuration detected" when your sound
-  devices change, for example when Bluetooth headphones connect or disconnect. That's the original game, not the
-  mod, and its own setup program doesn't run under Proton. The fix is a few numbers in `tzar.ini`, described in
-  [CONTRIBUTING.md](CONTRIBUTING.md#applying-it-by-hand)
-  ([#4](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/4)).
-- Untested: Windows, and multiplayer between patched and unpatched copies.
-
 ## Compared to other projects
 
 - [ReTzar](https://github.com/ColCarlo/ReTzar) is a remake of the whole game in Rust and Bevy (GPL-3.0) that uses
@@ -57,9 +46,11 @@ The details, down to the addresses in the game's code, are in [docs/findings.md]
 
 ## Help wanted
 
-Bug reports, feature requests and help with testing are most welcome: open an
-[issue](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues). Testing on Windows and with the GOG version helps
-the most, since the mod hasn't been tried on either yet.
+Known problems and plans are [GitHub issues](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues). Bug
+reports, feature requests and help with testing are most welcome there. Testing on Windows and with the GOG
+version helps the most, since the mod hasn't been tried on either yet: see
+[#7](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/7) and
+[#9](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/9).
 
 ## License
 
