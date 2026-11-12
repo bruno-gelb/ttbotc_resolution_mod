@@ -7,10 +7,6 @@ as 21:9 for an ultrawide monitor, so the game shows more of the map instead of s
 
 *The game at 1832x768, scaled to fill a 3440x1440 monitor. The original goes up to 1024x768.*
 
-**Status: works at 1832x768 (21:9) with the panel on the left, tested with the Steam version on Linux (Proton).
-There's no installer yet: applying it means changing the game's files by hand, as described in
-[CONTRIBUTING.md](CONTRIBUTING.md#applying-it-by-hand).**
-
 ## Requirements
 
 - **A copy of the game, bought legally.** The mod is developed against the Steam version,
