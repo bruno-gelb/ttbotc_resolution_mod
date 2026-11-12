@@ -1,7 +1,7 @@
-# Tzar: The Burden of the Crown — widescreen resolution mod
+# [Tzar: The Burden of the Crown][tzar] — widescreen resolution mod
 
-An unofficial fan mod that runs Tzar (Haemimont Games, 2000) at a widescreen resolution, such as 21:9 for an
-ultrawide monitor, so the game shows more of the map instead of stretching a 4:3 picture.
+An unofficial fan mod that runs [Tzar][tzar] ([Haemimont Games][haemimont], 2000) at a widescreen resolution, such
+as 21:9 for an ultrawide monitor, so the game shows more of the map instead of stretching a 4:3 picture.
 
 ![Tzar at 1832x768 with the left panel, scaled up to a 3440x1440 ultrawide monitor](docs/screenshots/tzar-1832x768-ultrawide.png)
 
@@ -13,8 +13,7 @@ ultrawide monitor, so the game shows more of the map instead of stretching a 4:3
 ## Requirements
 
 - **A copy of the game, bought legally.** The mod is developed against the Steam version,
-  [Tzar: The Burden of the Crown](https://store.steampowered.com/app/825730/), game version 1.10. Other versions (GOG,
-  the original CD) are untested.
+  [Tzar: The Burden of the Crown][tzar], game version 1.10. Other versions (GOG, the original CD) are untested.
 - The mod will never include game files. You need the game installed; the mod only changes it.
 
 ## Approach
@@ -28,7 +27,7 @@ tiny.
 ## Compared to other projects
 
 - [ReTzar](https://github.com/ColCarlo/ReTzar) is a remake of the whole game in Rust and Bevy (GPL-3.0) that uses
-  the art and data from your copy of Tzar: a new engine with crisp scaling up to 4K, HD art packs, extras and
+  the art and data from your copy of [Tzar][tzar]: a new engine with crisp scaling up to 4K, HD art packs, extras and
   experimental native macOS and Linux builds. This mod goes the other way: it keeps the original 2002 game,
   including its engine, AI and saves, and changes only how big a screen it draws on, with a few bytes of patches and
   config.
@@ -82,11 +81,15 @@ share them freely. That license covers only what's in this repository.
 
 ## The game and its owners
 
-- This is an unofficial fan project. It is not affiliated with, endorsed by or connected to Haemimont Games, the
-  developer and Steam publisher of Tzar: The Burden of the Crown, or to any other publisher of the game.
-- Tzar: The Burden of the Crown, its executable, data files, artwork, music and trademarks belong to their respective
-  owners. This repository contains none of them, and the mod will only ever ship its own changes (patches and
+- This is an unofficial fan project. It is not affiliated with, endorsed by or connected to
+  [Haemimont Games][haemimont], the developer and Steam publisher of [Tzar: The Burden of the Crown][tzar], or to
+  any other publisher of the game.
+- [Tzar: The Burden of the Crown][tzar], its executable, data files, artwork, music and trademarks belong to their
+  respective owners. This repository contains none of them, and the mod will only ever ship its own changes (patches and
   configuration), never the game's files. The screenshots show the game's art, which belongs to its owners too.
-- The mod doesn't remove or get around any copy protection, and it won't. To use it, buy the game.
+- The mod doesn't remove or get around any copy protection, and it won't. To use it, [buy the game][tzar].
 - Back up the game folder before applying anything. On Steam, "Verify integrity of game files" restores the
   original files.
+
+[tzar]: https://store.steampowered.com/app/825730/
+[haemimont]: https://www.haemimontgames.com/

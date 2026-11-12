@@ -1,6 +1,7 @@
 # Findings
 
-Static analysis of the Steam version, 2026-11-13. Nothing here has been tested in the running game yet.
+Static analysis of [Tzar: The Burden of the Crown][tzar] (Steam version 1.10, by
+[Haemimont Games][haemimont]), 2026-11-13, then tested in the running game: see the test sections below.
 
 ## The game's files
 
@@ -156,3 +157,6 @@ Tested 2026-11-13: the map is drawn across the full 1832 px width, no cursor tra
 - Fixed-size buffers for the map, fog of war or minimap that assume at most 1024x768.
 - Map scrolling limits at the right edge of the map with a wider view.
 - Mouse coordinates under cnc-ddraw's scaling (the Tzar preset sets `adjmouse=true`).
+
+[tzar]: https://store.steampowered.com/app/825730/
+[haemimont]: https://www.haemimontgames.com/
