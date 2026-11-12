@@ -7,8 +7,9 @@ as 21:9 for an ultrawide monitor, so the game shows more of the map instead of s
 
 *The game at 1832x768, scaled to fill a 3440x1440 monitor. The original goes up to 1024x768.*
 
-**Status: it works at 1832x768 on one machine (Steam version under Proton), applied by hand with the scripts in
-`tools/`. There's no installer yet.**
+**Status: works at 1832x768 (21:9) with the panel on the left, tested with the Steam version on Linux (Proton).
+There's no installer yet: applying it means changing the game's files by hand, as described in
+[CONTRIBUTING.md](CONTRIBUTING.md#applying-it-by-hand).**
 
 ## Requirements
 
@@ -16,13 +17,15 @@ as 21:9 for an ultrawide monitor, so the game shows more of the map instead of s
   [Tzar: The Burden of the Crown][tzar], game version 1.10. Other versions (GOG, the original CD) are untested.
 - The mod will never include game files. You need the game installed; the mod only changes it.
 
-## Approach
+## Known issues
 
-The idea is the one [DisciplesGL](https://github.com/rootext/disciples-gl-builds) uses for Disciples II: tell the game
-it has a bigger screen, give it a wider in-game layout, and fix the places where the game's code assumes one of its
-original screen sizes (800x600 or 1024x768). The target is the screen's shape, not its full size: on a 3440x1440
-screen, a 1720x720 game picture scaled up 2x keeps the sprites a sensible size, where native 3440x1440 would make them
-tiny.
+- Only the layout with the panel on the left works. With the panel at the bottom or on the right, its buttons end up
+  in the wrong places.
+- On Linux (Proton), the game can refuse to start with "Invalid TZAR configuration detected" when your sound
+  devices change, for example when Bluetooth headphones connect or disconnect. That's the original game, not the
+  mod, and its own setup program doesn't run under Proton. The fix is a few numbers in `tzar.ini`, described in
+  [CONTRIBUTING.md](CONTRIBUTING.md#applying-it-by-hand).
+- Untested: Windows, and multiplayer between patched and unpatched copies.
 
 ## Compared to other projects
 
@@ -34,45 +37,6 @@ tiny.
 - [Tzared](https://tza.red/) is a free remake you play in the browser or as an app, built around online
   multiplayer: ranked games, leagues and lobbies. You don't need the original game. This mod is for playing the
   original itself.
-
-## Findings
-
-See [docs/findings.md](docs/findings.md).
-
-## Roadmap
-
-- [x] **Widescreen in-game view** with the left panel at 1832x768 (2026-11-13): screen size patch, a wider
-  `LAYOUT1024L` and frame bitmap, cnc-ddraw, and the map view's dirty rectangles widened to 2048 px.
-- [ ] 1720x720 for a sharp 2x scale on 3440x1440 (cuts 48 px off the left panel's height: check what's there).
-- [ ] A frame bitmap without a visible repeat in the top bar's ornament.
-- [ ] **Patch out the sound device check.** At startup the game compares the sound devices it finds with counts saved
-  in `tzar.ini` and refuses to start ("Invalid TZAR configuration detected") when they differ: on a different
-  machine, or as soon as Bluetooth headphones or HDMI audio come or go. Its fix is `Setup.exe`, which doesn't start
-  under Proton. The game uses the default device anyway, so the check can go: make `0x4d07e0` (or the call to it in
-  `0x4558c0`) always report success, in `patch_exe.py`. Until then, rewrite the counts before each launch (see
-  [findings](docs/findings.md#startup-config-check-invalid-tzar-configuration)).
-- [ ] Bottom (H) and right (R) panel layouts: rewrite the 12 "is the width 1024?" checks that place their buttons.
-- [ ] An installer that applies everything to a Steam copy, with a backup and an undo.
-
-## Tools
-
-`tools/` has Python scripts for static analysis of the game's exe ([pefile](https://github.com/erocarrera/pefile) and
-[Capstone](https://www.capstone-engine.org/)), run with [uv](https://docs.astral.sh/uv/):
-
-```bash
-uv run tools/probe.py <path to Tzar_.exe> pairs
-```
-
-```bash
-uv run tools/xref.py <path to Tzar_.exe> str LAYOUT , ref 587732 , dis 43bb1b 10
-```
-
-`probe.py` prints the exe's layout, its imports and hardcoded screen-size constants; `xref.py` finds strings,
-references to an address, immediate values and disassembles code. See the docstrings for all queries.
-
-Two more scripts are the first pieces of the mod itself: `patch_exe.py` sets the screen size the game uses for its
-"1024" layouts (it checks the exe's bytes first and refuses an unknown version), and `make_frame.py` widens the
-in-game frame bitmap.
 
 ## License
 
