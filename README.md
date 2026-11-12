@@ -7,6 +7,26 @@ as 21:9 for an ultrawide monitor, so the game shows more of the map instead of s
 
 *The game at 1832x768, scaled to fill a 3440x1440 monitor. The original goes up to 1024x768.*
 
+## How it works
+
+The game was made for screens up to 1024x768. The mod changes four things, and nothing else: the game's rules, AI
+and saves stay exactly as they were.
+
+1. **12 bytes in the game's program** (`Tzar_.exe`). Some of them make the game's 1024x768 mode use 1832x768
+   instead. The rest fix a limit in how the game redraws the map: to save work, it only redraws the parts of the
+   screen that changed, and its record of those parts only reached 1024 pixels across. Past that point nothing was
+   ever redrawn, and the mouse cursor left a trail. Now each entry in that record covers twice the width, so it
+   reaches 2048 pixels.
+2. **The screen layout.** The game reads where the map, the minimap and the buttons go from a text file,
+   `DATA/LAYOUT.INI`. The mod gives the map view the extra width.
+3. **The frame around the map**, a picture the game draws under the map and the panels, is made wider to match,
+   from the game's own picture.
+4. **[cnc-ddraw](https://github.com/FunkyFr3sh/cnc-ddraw)**, a popular open-source replacement for DirectDraw, the
+   graphics library old Windows games use. No monitor has a 1832x768 mode, so cnc-ddraw offers one to the game and
+   scales the picture up to fill your screen.
+
+The details, down to the addresses in the game's code, are in [docs/findings.md](docs/findings.md).
+
 ## Requirements
 
 - **A copy of the game, bought legally.** The mod is developed against the Steam version,
