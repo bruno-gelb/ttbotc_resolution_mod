@@ -1,7 +1,7 @@
 # Tzar: The Burden of the Crown — widescreen resolution mod
 
-An unofficial fan mod, in research stage: making Tzar (Haemimont Games, 2000) run at a widescreen resolution, such as
-21:9 for an ultrawide monitor, so the game shows more of the map instead of stretching a 4:3 picture.
+An unofficial fan mod that runs Tzar (Haemimont Games, 2000) at a widescreen resolution, such as 21:9 for an
+ultrawide monitor, so the game shows more of the map instead of stretching a 4:3 picture.
 
 ![Tzar at 1832x768 with the left panel, scaled up to a 3440x1440 ultrawide monitor](docs/screenshots/tzar-1832x768-ultrawide.png)
 
