@@ -91,8 +91,10 @@ welcome, especially on Windows and with the GOG version.
   to 50 characters, capitalized, in the imperative mood ("Widen the redraw tracking", not "Widened..."), with no
   period at the end; a blank line; then a body wrapped at 72 characters that says what changed and why.
 - **Branches** follow [trunk-based development](https://trunkbaseddevelopment.com/): `main` is the trunk and the only
-  long-lived branch. Commit to it in small steps, or use a short-lived branch that's merged back within a day or two.
-  Keep `main` working: every commit should leave the mod in a state that applies and runs.
+  long-lived branch. Make each change on a short-lived branch and merge it into `main` with a pull request within a
+  day or two. `main` is protected: it takes no direct pushes, no force pushes and can't be deleted. Pull request
+  titles follow the same rules as commit subjects. Keep `main` working: every merge should leave the mod in a state
+  that applies and runs.
 
 ## Versions and releases
 
@@ -104,8 +106,9 @@ versions can also carry bigger changes.
 To release:
 
 1. Add the version's section to [CHANGELOG.md](CHANGELOG.md): it becomes the release notes.
-2. Set the version in `pyproject.toml`, run `uv lock`, commit (`Release 0.2.0`) and push.
-3. Tag the commit and push the tag:
+2. Set the version in `pyproject.toml`, run `uv lock`, commit (`Release 0.2.0`) and merge it into `main` with a pull
+   request.
+3. Tag the merged commit on `main` and push the tag:
 
    ```bash
    git tag -a v0.2.0 -m "Release 0.2.0" && git push origin v0.2.0
