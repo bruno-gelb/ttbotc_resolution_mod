@@ -95,6 +95,10 @@ welcome, especially on Windows and with the GOG version.
   day or two. `main` is protected: it takes no direct pushes, no force pushes and can't be deleted. Pull request
   titles follow the same rules as commit subjects. Keep `main` working: every merge should leave the mod in a state
   that applies and runs.
+- **Branch names**: a prefix (`feature`, `bug` or `chore`), a slash, the number of the GitHub issue the branch works
+  on, a hyphen, and a short description in kebab-case (lowercase words joined by hyphens):
+  - `feature/3-top-bar-ornament`
+  - `bug/1-error`
 
 ## Versions and releases
 
