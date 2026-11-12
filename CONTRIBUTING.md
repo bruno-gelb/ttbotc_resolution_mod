@@ -84,7 +84,8 @@ redraw limit was found.
 ## Plans and bugs
 
 They're [GitHub issues](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues): what's next, known problems
-and ideas. Open one before starting on something bigger.
+and ideas. Open one before starting on something bigger. Bug reports, feature requests and testing help are most
+welcome, especially on Windows and with the GOG version.
 
 ## Workflow
 

@@ -39,6 +39,12 @@ There's no installer yet: applying it means changing the game's files by hand, a
   multiplayer: ranked games, leagues and lobbies. You don't need the original game. This mod is for playing the
   original itself.
 
+## Help wanted
+
+Bug reports, feature requests and help with testing are most welcome: open an
+[issue](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues). Testing on Windows and with the GOG version helps
+the most, since the mod hasn't been tried on either yet.
+
 ## License
 
 The mod's own files (code, patches, documentation) are released under the [MIT License](LICENSE): use, change and
