@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+
+# Game files and dumps stay out of the repo: they're not ours to publish.
+*.exe
+*.dll
+*.bmp
+dumps/

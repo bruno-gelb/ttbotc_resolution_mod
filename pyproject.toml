@@ -1,0 +1,10 @@
+[project]
+name = "ttbotc-resolution-mod"
+version = "0.1.0"
+description = "Reverse-engineering tools for a widescreen resolution mod for Tzar: The Burden of the Crown"
+requires-python = ">=3.15"
+dependencies = [
+    "capstone>=5.0.9",
+    "pefile>=2024.8.26",
+    "pillow>=13.0.0",
+]

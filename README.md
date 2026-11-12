@@ -1,0 +1,92 @@
+# Tzar: The Burden of the Crown — widescreen resolution mod
+
+An unofficial fan mod, in research stage: making Tzar (Haemimont Games, 2000) run at a widescreen resolution, such as
+21:9 for an ultrawide monitor, so the game shows more of the map instead of stretching a 4:3 picture.
+
+![Tzar at 1832x768 with the left panel, scaled up to a 3440x1440 ultrawide monitor](docs/screenshots/tzar-1832x768-ultrawide.png)
+
+*The game at 1832x768, scaled to fill a 3440x1440 monitor. The original goes up to 1024x768.*
+
+**Status: it works at 1832x768 on one machine (Steam version under Proton), applied by hand with the scripts in
+`tools/`. There's no installer yet.**
+
+## Requirements
+
+- **A copy of the game, bought legally.** The mod is developed against the Steam version,
+  [Tzar: The Burden of the Crown](https://store.steampowered.com/app/825730/), game version 1.10. Other versions (GOG,
+  the original CD) are untested.
+- The mod will never include game files. You need the game installed; the mod only changes it.
+
+## Approach
+
+The idea is the one [DisciplesGL](https://github.com/rootext/disciples-gl-builds) uses for Disciples II: tell the game
+it has a bigger screen, give it a wider in-game layout, and fix the places where the game's code assumes one of its
+original screen sizes (800x600 or 1024x768). The target is the screen's shape, not its full size: on a 3440x1440
+screen, a 1720x720 game picture scaled up 2x keeps the sprites a sensible size, where native 3440x1440 would make them
+tiny.
+
+## Compared to other projects
+
+- [ReTzar](https://github.com/ColCarlo/ReTzar) is a remake of the whole game in Rust and Bevy (GPL-3.0) that uses
+  the art and data from your copy of Tzar: a new engine with crisp scaling up to 4K, HD art packs, extras and
+  experimental native macOS and Linux builds. This mod goes the other way: it keeps the original 2002 game,
+  including its engine, AI and saves, and changes only how big a screen it draws on, with a few bytes of patches and
+  config.
+- [Tzared](https://tza.red/) is a free remake you play in the browser or as an app, built around online
+  multiplayer: ranked games, leagues and lobbies. You don't need the original game. This mod is for playing the
+  original itself.
+
+## Findings
+
+See [docs/findings.md](docs/findings.md).
+
+## Roadmap
+
+- [x] **Widescreen in-game view** with the left panel at 1832x768 (2026-11-13): screen size patch, a wider
+  `LAYOUT1024L` and frame bitmap, cnc-ddraw, and the map view's dirty rectangles widened to 2048 px.
+- [ ] 1720x720 for a sharp 2x scale on 3440x1440 (cuts 48 px off the left panel's height: check what's there).
+- [ ] A frame bitmap without a visible repeat in the top bar's ornament.
+- [ ] **Patch out the sound device check.** At startup the game compares the sound devices it finds with counts saved
+  in `tzar.ini` and refuses to start ("Invalid TZAR configuration detected") when they differ: on a different
+  machine, or as soon as Bluetooth headphones or HDMI audio come or go. Its fix is `Setup.exe`, which doesn't start
+  under Proton. The game uses the default device anyway, so the check can go: make `0x4d07e0` (or the call to it in
+  `0x4558c0`) always report success, in `patch_exe.py`. Until then, rewrite the counts before each launch (see
+  [findings](docs/findings.md#startup-config-check-invalid-tzar-configuration)).
+- [ ] Bottom (H) and right (R) panel layouts: rewrite the 12 "is the width 1024?" checks that place their buttons.
+- [ ] An installer that applies everything to a Steam copy, with a backup and an undo.
+
+## Tools
+
+`tools/` has Python scripts for static analysis of the game's exe ([pefile](https://github.com/erocarrera/pefile) and
+[Capstone](https://www.capstone-engine.org/)), run with [uv](https://docs.astral.sh/uv/):
+
+```bash
+uv run tools/probe.py <path to Tzar_.exe> pairs
+```
+
+```bash
+uv run tools/xref.py <path to Tzar_.exe> str LAYOUT , ref 587732 , dis 43bb1b 10
+```
+
+`probe.py` prints the exe's layout, its imports and hardcoded screen-size constants; `xref.py` finds strings,
+references to an address, immediate values and disassembles code. See the docstrings for all queries.
+
+Two more scripts are the first pieces of the mod itself: `patch_exe.py` sets the screen size the game uses for its
+"1024" layouts (it checks the exe's bytes first and refuses an unknown version), and `make_frame.py` widens the
+in-game frame bitmap.
+
+## License
+
+The mod's own files (code, patches, documentation) are released under the [MIT License](LICENSE): use, change and
+share them freely. That license covers only what's in this repository.
+
+## The game and its owners
+
+- This is an unofficial fan project. It is not affiliated with, endorsed by or connected to Haemimont Games, the
+  developer and Steam publisher of Tzar: The Burden of the Crown, or to any other publisher of the game.
+- Tzar: The Burden of the Crown, its executable, data files, artwork, music and trademarks belong to their respective
+  owners. This repository contains none of them, and the mod will only ever ship its own changes (patches and
+  configuration), never the game's files. The screenshots show the game's art, which belongs to its owners too.
+- The mod doesn't remove or get around any copy protection, and it won't. To use it, buy the game.
+- Back up the game folder before applying anything. On Steam, "Verify integrity of game files" restores the
+  original files.
