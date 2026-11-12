@@ -20,11 +20,12 @@ There's no installer yet: applying it means changing the game's files by hand, a
 ## Known issues
 
 - Only the layout with the panel on the left works. With the panel at the bottom or on the right, its buttons end up
-  in the wrong places.
+  in the wrong places ([#5](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/5)).
 - On Linux (Proton), the game can refuse to start with "Invalid TZAR configuration detected" when your sound
   devices change, for example when Bluetooth headphones connect or disconnect. That's the original game, not the
   mod, and its own setup program doesn't run under Proton. The fix is a few numbers in `tzar.ini`, described in
-  [CONTRIBUTING.md](CONTRIBUTING.md#applying-it-by-hand).
+  [CONTRIBUTING.md](CONTRIBUTING.md#applying-it-by-hand)
+  ([#4](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/4)).
 - Untested: Windows, and multiplayer between patched and unpatched copies.
 
 ## Compared to other projects

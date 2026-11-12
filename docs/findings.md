@@ -68,8 +68,8 @@ whether the config is valid; if not, the game shows `invalidcfg` from `LOCAL/STR
   when a device comes or goes (Bluetooth headphones), and the error comes back.** For now, a launch script
   (`tzar-run` in the `workstation` repo) rewrites them before every start: Wine's wave and DirectSound outputs are
   the PipeWire sinks plus Wine's own default "PulseAudio Output", and its MIDI outputs are the writable ALSA
-  sequencer ports outside the kernel's System client (`/proc/asound/seq/clients`). Patching the check out is on the
-  roadmap in CONTRIBUTING.md.
+  sequencer ports outside the kernel's System client (`/proc/asound/seq/clients`). Patching the check out is
+  [#4](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/4).
 - **DirectDraw (`0x455890`, only when `DIRECTXDEVICE` isn't -1).** `DIRECTDRAW_DEVICESNUMBER` - 1 must equal the
   number of devices `DirectDrawEnumerateA` reports (callback `0x50fc00` counts all of them). cnc-ddraw reports one,
   so the shipped value 2 works.

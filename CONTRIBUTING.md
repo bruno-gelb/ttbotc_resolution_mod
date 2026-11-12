@@ -81,20 +81,10 @@ For what static analysis can't find, profiling the running game helps: `perf rec
 doing the thing you're after, then sort the samples by address (the exe always loads at `0x400000`). That's how the
 redraw limit was found.
 
-## Roadmap
+## Plans and bugs
 
-- [x] **Widescreen in-game view** with the left panel at 1832x768 (2026-11-13): screen size patch, a wider
-  `LAYOUT1024L` and frame bitmap, cnc-ddraw, and the map view's redraw tracking widened to 2048 px.
-- [ ] 1720x720 for a sharp 2x scale on 3440x1440 (cuts 48 px off the left panel's height: check what's there).
-- [ ] A frame bitmap without a visible repeat in the top bar's ornament.
-- [ ] **Patch out the sound device check.** At startup the game compares the sound devices it finds with counts saved
-  in `tzar.ini` and refuses to start ("Invalid TZAR configuration detected") when they differ: on a different
-  machine, or as soon as Bluetooth headphones or HDMI audio come or go. Its fix is `Setup.exe`, which doesn't start
-  under Proton. The game uses the default device anyway, so the check can go: make `0x4d07e0` (or the call to it in
-  `0x4558c0`) always report success, in `patch_exe.py`. Until then, rewrite the counts before each launch (see
-  [findings](docs/findings.md#startup-config-check-invalid-tzar-configuration)).
-- [ ] Bottom (H) and right (R) panel layouts: rewrite the 12 "is the width 1024?" checks that place their buttons.
-- [ ] An installer that applies everything to a Steam copy, with a backup and an undo.
+They're [GitHub issues](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues): what's next, known problems
+and ideas. Open one before starting on something bigger.
 
 ## Workflow
 
