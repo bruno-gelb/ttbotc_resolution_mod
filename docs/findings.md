@@ -74,6 +74,11 @@ whether the config is valid; if not, the game shows `invalidcfg` from `LOCAL/STR
   number of devices `DirectDrawEnumerateA` reports (callback `0x50fc00` counts all of them). cnc-ddraw reports one,
   so the shipped value 2 works.
 
+**Since 0.1.0 the mod skips the sound check's verdict** (`exe_patch.py`): the jump at `0x4558d0` that returns
+"invalid" when `0x4d07e0` reports a mismatch (`75 0a`, `jne`) becomes two NOPs. `0x4d07e0` still runs and still
+stores the device counts (`0xc97c34`-`0xc97c38`); its failure path only returns 1, with no side effects. Tested
+2026-11-13 with the shipped counts 3 / 3 / 2 against the real 5 / 5 / 4: the game goes straight to the menu.
+
 `DIRECTXDEVICE=-1` means GDI: the `Logs/Tzar.log` shipped with the game says `Video Renderer: GDI`. `0` is the first
 DirectDraw device.
 
@@ -99,9 +104,10 @@ left panel's height, so it needs a check of what sits at the bottom of the panel
 
 What was changed in the game folder (`~/.steam/debian-installation/steamapps/common/Tzar`):
 
-- `Tzar_.exe`: `tools/patch_exe.py Tzar_.exe 1832 768`, 4 bytes (1024 to 1832 at `0x43bb31` and `0x474398`).
+- `Tzar_.exe`: `patch_exe.py Tzar_.exe 1832 768` (now `exe_patch.py`), 4 bytes (1024 to 1832 at `0x43bb31` and
+  `0x474398`).
 - `DATA/LAYOUT.INI`: `[LAYOUT1024L] view = 150,30,1682,738`.
-- `IMAGES/SCREENS/S_VIEW/SCREEN 1024 LEFT.BMP`: 1832x768, made by `tools/make_frame.py` (the top bar's vine
+- `IMAGES/SCREENS/S_VIEW/SCREEN 1024 LEFT.BMP`: 1832x768, made by `make_frame.py` (now `frame.py`) (the top bar's vine
   ornament repeats every 42 px).
 - `tzar.ini`: `DIRECTXDEVICE=0`, and the sound device counts 5 / 5 / 4 (see above).
 - Added cnc-ddraw v7.1.0.0 (`ddraw.dll`, `ddraw.ini`, `Shaders/`): `fullscreen=true`, `maintas=true`,
@@ -144,7 +150,7 @@ column bits, `x - view left >> 4`, clamped to 64 columns. `0x4f3760` walks the b
 stepping 16 px per bit (and 512 px to skip the first 32-bit word). 64 × 16 = 1024 px, so nothing further right
 was ever marked for redraw.
 
-Fix (in `patch_exe.py`, 8 spots): each bit covers 32 px instead of 16, up to 2048 px. `sar 4` → `sar 5` for x at
+Fix (in `exe_patch.py`, 8 spots): each bit covers 32 px instead of 16, up to 2048 px. `sar 4` → `sar 5` for x at
 `0x4f9a1d` and `0x4f9a78`; in `0x4f3760` the x steps 16 → 32 at `0x4f3864`, `0x4f3887`, `0x4f38a7`, `0x4f38ca`,
 `0x4f38ef`, and 512 → 1024 at `0x4f38b9`. Rows stay 16 px (64 rows = 1024 px, enough for any height here). The
 masks are only touched by these two functions, `0x4f3610` and `0x4f36a0` (both go through `0x4f99b0`), and two

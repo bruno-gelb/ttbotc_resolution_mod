@@ -1,10 +1,33 @@
 [project]
 name = "ttbotc-resolution-mod"
+# Semantic versioning (https://semver.org), released from tags vX.Y.Z: see CONTRIBUTING.md.
 version = "0.1.0"
-description = "Reverse-engineering tools for a widescreen resolution mod for Tzar: The Burden of the Crown"
-requires-python = ">=3.15"
+description = "Widescreen mod for Tzar: The Burden of the Crown: the original game at 21:9"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.12"
 dependencies = [
-    "capstone>=5.0.9",
     "pefile>=2024.8.26",
-    "pillow>=13.0.0",
 ]
+
+[project.scripts]
+tzar-widescreen = "tzar_widescreen.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/bruno-gelb/ttbotc_resolution_mod"
+Issues = "https://github.com/bruno-gelb/ttbotc_resolution_mod/issues"
+
+[dependency-groups]
+dev = [
+    "capstone>=5.0.9",     # src/tools: disassembly
+    "pillow>=13.0.0",      # viewing the game's bitmaps
+    "pyinstaller>=6.22",   # release builds
+]
+
+[build-system]
+requires = ["uv_build>=0.13,<0.14"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "tzar_widescreen"

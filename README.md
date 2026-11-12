@@ -7,16 +7,49 @@ as 21:9 for an ultrawide monitor, so the game shows more of the map instead of s
 
 *The game at 1832x768, scaled to fill a 3440x1440 monitor. The original goes up to 1024x768.*
 
+## Install
+
+You need [Tzar: The Burden of the Crown][tzar] from Steam (game version 1.10), installed. Other versions, like GOG's
+or the original CD, aren't supported yet ([#9](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/9)).
+
+1. Download the program for your system from the [latest release](https://github.com/bruno-gelb/ttbotc_resolution_mod/releases/latest):
+   `tzar-widescreen-...-windows.exe` for Windows, `tzar-widescreen-...-linux` for Linux.
+2. Run it.
+   - **Windows:** double-click it. Windows may say it protected your PC, because the program isn't signed: click
+     **More info**, then **Run anyway**.
+   - **Linux:** open a terminal in the folder you downloaded it to and run:
+
+     ```bash
+     chmod +x tzar-widescreen-*-linux && ./tzar-widescreen-*-linux
+     ```
+
+3. It finds the game, tells you what it's going to change and asks first. Press Enter to install.
+4. **Linux only, once:** in Steam, right-click Tzar, then Properties, General, and put this in Launch Options:
+
+   ```
+   WINEDLLOVERRIDES="ddraw=n,b" %command%
+   ```
+
+5. Play from Steam as usual. Keep the game's layout with the panel on the left: the other two don't work with the
+   mod yet ([#5](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/5)).
+
+If it can't find the game, copy the program into the game's folder and run it from there.
+
+**To remove the mod**, run the program again: it sees the mod and offers to put the game's original files back. After
+a Steam update or "Verify integrity of game files", run it again to apply the mod again.
+
 ## How it works
 
 The game was made for screens up to 1024x768. The mod changes four things, and nothing else: the game's rules, AI
-and saves stay exactly as they were.
+and saves stay exactly as they were. The program keeps the original files and puts them back when you remove the
+mod.
 
-1. **12 bytes in the game's program** (`Tzar_.exe`). Some of them make the game's 1024x768 mode use 1832x768
-   instead. The rest fix a limit in how the game redraws the map: to save work, it only redraws the parts of the
-   screen that changed, and its record of those parts only reached 1024 pixels across. Past that point nothing was
-   ever redrawn, and the mouse cursor left a trail. Now each entry in that record covers twice the width, so it
-   reaches 2048 pixels.
+1. **14 bytes in the game's program** (`Tzar_.exe`). Four make the game's 1024x768 mode use 1832x768 instead.
+   Eight fix a limit in how the game redraws the map: to save work, it only redraws the parts of the screen that
+   changed, and its record of those parts only reached 1024 pixels across. Past that point nothing was ever redrawn,
+   and the mouse cursor left a trail. Now each entry in that record covers twice the width, so it reaches 2048
+   pixels. The last two stop the game from refusing to start ("Invalid TZAR configuration detected") when your
+   sound devices differ from the ones its settings were saved with, which under Linux is almost always.
 2. **The screen layout.** The game reads where the map, the minimap and the buttons go from a text file,
    `DATA/LAYOUT.INI`. The mod gives the map view the extra width.
 3. **The frame around the map**, a picture the game draws under the map and the panels, is made wider to match,
@@ -26,12 +59,6 @@ and saves stay exactly as they were.
    scales the picture up to fill your screen.
 
 The details, down to the addresses in the game's code, are in [docs/findings.md](docs/findings.md).
-
-## Requirements
-
-- **A copy of the game, bought legally.** The mod is developed against the Steam version,
-  [Tzar: The Burden of the Crown][tzar], game version 1.10. Other versions (GOG, the original CD) are untested.
-- The mod will never include game files. You need the game installed; the mod only changes it.
 
 ## Compared to other projects
 
@@ -55,7 +82,8 @@ version helps the most, since the mod hasn't been tried on either yet: see
 ## License
 
 The mod's own files (code, patches, documentation) are released under the [MIT License](LICENSE): use, change and
-share them freely. That license covers only what's in this repository.
+share them freely. That license covers only what's in this repository. The programs on the releases page also
+include [cnc-ddraw](https://github.com/FunkyFr3sh/cnc-ddraw) by FunkyFr3sh, under its own MIT License.
 
 ## The game and its owners
 
@@ -66,8 +94,8 @@ share them freely. That license covers only what's in this repository.
   respective owners. This repository contains none of them, and the mod will only ever ship its own changes (patches and
   configuration), never the game's files. The screenshots show the game's art, which belongs to its owners too.
 - The mod doesn't remove or get around any copy protection, and it won't. To use it, [buy the game][tzar].
-- Back up the game folder before applying anything. On Steam, "Verify integrity of game files" restores the
-  original files.
+- The game's files are only changed on your computer, in your copy. Removing the mod puts the originals back, and
+  so does Steam's "Verify integrity of game files".
 
 [tzar]: https://store.steampowered.com/app/825730/
 [haemimont]: https://www.haemimontgames.com/

@@ -1,0 +1,67 @@
+# Builds tzar-widescreen for Windows and Linux. On a version tag (vX.Y.Z) it also publishes a GitHub release with
+# both programs and that version's section of CHANGELOG.md. Run it by hand (Actions, Release, Run workflow) to only
+# build and download the programs for testing.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        # The oldest supported Ubuntu, so the Linux program runs on as many distributions as possible.
+        os: [windows-2022, ubuntu-22.04]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: astral-sh/setup-uv@v10.3.3
+        with:
+          python-version: "3.13"
+      - name: Check the tag matches the version in pyproject.toml
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: |
+          version=$(uv run python -c "from importlib.metadata import version; print(version('ttbotc-resolution-mod'))")
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "Tag $GITHUB_REF_NAME doesn't match version $version in pyproject.toml"
+            exit 1
+          fi
+      - name: Fetch cnc-ddraw
+        run: uv run python src/tools/fetch_cnc_ddraw.py
+      - name: Build
+        run: uv run python src/tools/build_release.py
+      - name: Smoke test
+        shell: bash
+        run: ./dist/tzar-widescreen-* --version
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: tzar-widescreen-${{ matrix.os }}
+          path: dist/*
+          if-no-files-found: error
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 src/tools/release_notes.py "$GITHUB_REF_NAME" > notes.md
+          printf '\nInstall: see the [README](%s/%s#install).\n' \
+            "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/blob/$GITHUB_REF_NAME" "README.md" >> notes.md
+          gh release create "$GITHUB_REF_NAME" dist/* --title "$GITHUB_REF_NAME" --notes-file notes.md

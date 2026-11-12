@@ -7,3 +7,10 @@ __pycache__/
 *.dll
 *.bmp
 dumps/
+
+# cnc-ddraw's files, fetched by src/tools/fetch_cnc_ddraw.py for release builds
+src/tzar_widescreen/cnc_ddraw/
+# PyInstaller
+build/
+dist/
+*.spec
