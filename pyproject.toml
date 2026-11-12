@@ -8,7 +8,7 @@ license = "MIT"
 license-files = ["LICENSE"]
 requires-python = ">=3.12"
 dependencies = [
-    "pefile>=2024.8.26",
+    "pefile==2024.8.26",
 ]
 
 [project.scripts]
@@ -18,15 +18,16 @@ tzar-widescreen = "tzar_widescreen.cli:main"
 Homepage = "https://github.com/bruno-gelb/ttbotc_resolution_mod"
 Issues = "https://github.com/bruno-gelb/ttbotc_resolution_mod/issues"
 
+# Every dependency is pinned to an exact version here, and with its whole tree in uv.lock.
 [dependency-groups]
 dev = [
-    "capstone>=5.0.9",     # src/tools: disassembly
-    "pillow>=13.0.0",      # viewing the game's bitmaps
-    "pyinstaller>=6.22",   # release builds
+    "capstone==5.0.9",      # src/tools: disassembly
+    "pillow==13.0.0",       # viewing the game's bitmaps
+    "pyinstaller==6.22.3",  # release builds
 ]
 
 [build-system]
-requires = ["uv_build>=0.13,<0.14"]
+requires = ["uv_build==0.13.6"]
 build-backend = "uv_build"
 
 [tool.uv.build-backend]

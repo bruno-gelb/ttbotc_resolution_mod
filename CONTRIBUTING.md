@@ -46,6 +46,11 @@ which git ignores. `tzar-widescreen status --game-dir "<game folder>"` shows wha
 Test on a copy of the game's folder first: the program needs only `Tzar_.exe`, `tzar.ini`, `DATA/LAYOUT.INI` and
 `IMAGES/SCREENS/S_VIEW/SCREEN 1024 LEFT.BMP` in it.
 
+Every third-party dependency is pinned to an exact version: Python in `.python-version`, packages in
+`pyproject.toml` and, with their whole tree, in `uv.lock`, cnc-ddraw by version and checksum in
+`fetch_cnc_ddraw.py`, and in the release workflow the actions, uv and the runner images. Update a pin on purpose,
+in its own commit, and run `uv lock` after changing `pyproject.toml`.
+
 To build the single-file program for your platform into `dist/` (the same command the release uses):
 
 ```bash
