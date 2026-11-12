@@ -96,6 +96,15 @@ redraw limit was found.
 - [ ] Bottom (H) and right (R) panel layouts: rewrite the 12 "is the width 1024?" checks that place their buttons.
 - [ ] An installer that applies everything to a Steam copy, with a backup and an undo.
 
+## Workflow
+
+- **Commit messages** follow [How to Write a Git Commit Message](https://cbea.ms/git-commit/): a subject line of up
+  to 50 characters, capitalized, in the imperative mood ("Widen the redraw tracking", not "Widened..."), with no
+  period at the end; a blank line; then a body wrapped at 72 characters that says what changed and why.
+- **Branches** follow [trunk-based development](https://trunkbaseddevelopment.com/): `main` is the trunk and the only
+  long-lived branch. Commit to it in small steps, or use a short-lived branch that's merged back within a day or two.
+  Keep `main` working: every commit should leave the mod in a state that applies and runs.
+
 ## License
 
 Contributions are under the [MIT License](LICENSE), like the rest of the mod. Never commit the game's files: its
