@@ -10,41 +10,12 @@ as 21:9 for an ultrawide monitor, so the game shows more of the map instead of s
 
 ## Install
 
-You need [Tzar: The Burden of the Crown][tzar] from Steam or [GOG][gog]. On Linux, the GOG version runs through
-[Heroic](https://heroicgameslauncher.com/). The original CD version isn't supported.
+You need [Tzar: The Burden of the Crown][tzar] from Steam or [GOG][gog]. The original CD version isn't supported.
 
-1. Get the program and start it:
-   - **Windows:** [download it][windows] and double-click it.
-   - **Linux:** start the game once from Steam or Heroic, so that it sets the game up. Then run this in a terminal:
-
-     ```bash
-     curl -fLO https://github.com/bruno-gelb/ttbotc_resolution_mod/releases/latest/download/tzar-widescreen-linux && chmod +x tzar-widescreen-linux && ./tzar-widescreen-linux
-     ```
-
-2. Press Enter twice: the program finds the game, picks the resolution that matches your screen and installs the mod.
-3. Play as usual.
-
-To change the resolution, run the program again. Run it again after a game update too, to put the mod back.
-
-<details>
-<summary>Windows says it protected your PC</summary>
-
-The program isn't signed yet ([#25](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/25)), so Windows
-doesn't know it. Click **More info**, then **Run anyway**.
-
-</details>
-
-<details>
-<summary>Other resolutions, the command line, and when it can't find the game</summary>
-
-- Besides the width that matches your screen, the program offers 1232x768 for 16:10 screens, 1368x768 for 16:9 and
-  1832x768 for 21:9 ultrawides, or any width from 1032 to 2198. The height is always 768, and the picture is scaled
-  to fill your screen, keeping its shape.
-- From a terminal, `--width` skips the question, for example `./tzar-widescreen-linux --width 1368`. `--help` lists
-  the rest.
-- If it can't find the game, copy the program into the game's folder and run it from there.
-
-</details>
+- [Windows + Steam](docs/install-windows-steam.md)
+- [Windows + GOG](docs/install-windows-gog.md)
+- [Linux + Steam](docs/install-linux-steam.md)
+- [Linux + GOG](docs/install-linux-gog.md)
 
 ## Uninstall
 
@@ -95,4 +66,3 @@ include [cnc-ddraw](https://github.com/FunkyFr3sh/cnc-ddraw) by FunkyFr3sh, unde
 [tzar]: https://store.steampowered.com/app/825730/
 [gog]: https://www.gog.com/en/game/tzar_the_burden_of_the_crown
 [haemimont]: https://www.haemimontgames.com/
-[windows]: https://github.com/bruno-gelb/ttbotc_resolution_mod/releases/latest/download/tzar-widescreen-windows.exe
