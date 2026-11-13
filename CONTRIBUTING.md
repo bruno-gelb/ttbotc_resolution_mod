@@ -24,8 +24,10 @@ What it takes today, for any width from 1032 to 2198 at 768 px high, with the le
 
 `install.py` puts it together: it backs up the original files to `tzar-widescreen-backup/` in the game folder, with a
 manifest, and puts them back on uninstall. `resolutions.py` holds the width limits and presets and detects the
-screen's shape, `game.py` finds the game in the Steam libraries, and `cli.py` is the `tzar-widescreen` program,
-built with [Click](https://click.palletsprojects.com/en/stable/).
+screen's shape, `game.py` finds the game (Steam libraries, Heroic's GOG installs through `heroic.py`, GOG's
+installer on Windows) and tells which exe is the game, `proton.py` sets the ddraw override in the game's Wine prefix
+on Linux, and `cli.py` is the `tzar-widescreen` program, built with
+[Click](https://click.palletsprojects.com/en/stable/).
 
 All the details, with addresses: [docs/findings.md](docs/findings.md).
 
@@ -47,8 +49,8 @@ uv run tzar-widescreen --help
 
 `fetch_cnc_ddraw.py` downloads cnc-ddraw's release (pinned, checksum verified) into `src/tzar_widescreen/cnc_ddraw/`,
 which git ignores. `tzar-widescreen status --game-dir "<game folder>"` shows what's applied without changing anything.
-Test on a copy of the game's folder first: the program needs only `Tzar_.exe`, `tzar.ini`, `DATA/LAYOUT.INI` and
-`IMAGES/SCREENS/S_VIEW/SCREEN 1024 LEFT.BMP` in it.
+Test on a copy of the game's folder first: the program needs only `Tzar_.exe` (`Tzar.exe` for GOG), `tzar.ini`,
+`DATA/LAYOUT.INI` and `IMAGES/SCREENS/S_VIEW/SCREEN 1024 LEFT.BMP` in it.
 
 Every third-party dependency is pinned to an exact version: Python in `.python-version`, packages in
 `pyproject.toml` and, with their whole tree, in `uv.lock`, cnc-ddraw by version and checksum in

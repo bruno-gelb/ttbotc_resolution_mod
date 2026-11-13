@@ -6,13 +6,16 @@ structure.
 """
 
 import hashlib
+import json
 import struct
 from pathlib import Path
 
 import pytest
 
-from tzar_widescreen import cnc_ddraw, exe_patch, install, proton, resolutions
+from tzar_widescreen import cnc_ddraw, exe_patch, heroic, install, proton, resolutions
 
+STEAM_EXE = "Tzar_.exe"  # the game on Steam; Steam's Tzar.exe is a small launcher for it
+GOG_EXE = "Tzar.exe"     # the game on GOG
 IMAGE_BASE = 0x400000
 TEXT_RVA = 0x1000
 TEXT_RAW = 0x159000  # big enough for every patch address, like the real .text section
@@ -112,6 +115,12 @@ def screen(monkeypatch):
 
 
 @pytest.fixture(autouse=True)
+def no_heroic(monkeypatch):
+    """No Heroic installs unless a test sets them up: the machine's own Heroic settings stay out of the tests."""
+    monkeypatch.setattr(heroic, "CONFIG_DIRS", [])
+
+
+@pytest.fixture(autouse=True)
 def no_proton(monkeypatch):
     """Windows behaviour by default, whatever runs the tests: the proton fixture turns Proton on."""
     monkeypatch.setattr(proton, "ENABLED", False)
@@ -144,16 +153,56 @@ def prefix(game, monkeypatch) -> Path:
     return reg
 
 
-@pytest.fixture
-def game(tmp_path) -> Path:
-    """A synthetic, unmodded game folder, in a Steam library's steamapps/common."""
-    folder = tmp_path / "steamapps" / "common" / "Tzar"
+def make_game(folder: Path, exe: str) -> Path:
+    """The game's files in folder, with its exe under that name. GOG ships the same files as Steam."""
     (folder / "DATA").mkdir(parents=True)
     (folder / "IMAGES/SCREENS/S_VIEW").mkdir(parents=True)
     (folder / "LOCAL").mkdir()
-    (folder / install.EXE).write_bytes(make_exe())
+    (folder / exe).write_bytes(make_exe())
     (folder / install.TZAR_INI).write_bytes(TZAR_INI.encode("latin-1"))
     (folder / install.LAYOUT_INI).write_bytes(LAYOUT_INI.encode("latin-1"))
     (folder / install.FRAME).write_bytes(make_frame())
     (folder / install.STRINGS_INI).write_bytes(STRINGS_INI.encode("latin-1"))
     return folder
+
+
+@pytest.fixture
+def game(tmp_path) -> Path:
+    """A synthetic, unmodded Steam copy of the game, in a Steam library's steamapps/common: the game is Tzar_.exe,
+    and Tzar.exe is Steam's 21 KB launcher, which the mod must leave alone."""
+    folder = make_game(tmp_path / "steamapps" / "common" / "Tzar", STEAM_EXE)
+    (folder / GOG_EXE).write_bytes(b"MZ" + b"\0" * 21430)
+    return folder
+
+
+@pytest.fixture
+def gog_game(tmp_path) -> Path:
+    """A synthetic, unmodded GOG copy of the game, where Heroic installs it: the game is Tzar.exe."""
+    return make_game(tmp_path / "Games" / "Heroic" / "Tzar", GOG_EXE)
+
+
+def heroic_config(config: Path, game_dir: Path, wine_prefix: Path | None, wine_type: str = "proton") -> None:
+    """Heroic's settings for a GOG install of Tzar in game_dir, as Heroic 2.22 writes them."""
+    (config / "gog_store").mkdir(parents=True, exist_ok=True)
+    (config / "GamesConfig").mkdir(parents=True, exist_ok=True)
+    installed = {"installed": [{"appName": heroic.GOG_ID, "install_path": str(game_dir), "version": "1.10",
+                                "platform": "windows", "install_size": "269.62 MiB"}]}
+    (config / "gog_store" / "installed.json").write_text(json.dumps(installed))
+    settings = {"wineVersion": {"name": "Proton-CachyOS-latest", "type": wine_type}, "autoInstallDxvk": True}
+    if wine_prefix is not None:
+        settings["winePrefix"] = str(wine_prefix)
+    (config / "GamesConfig" / f"{heroic.GOG_ID}.json").write_text(json.dumps({heroic.GOG_ID: settings}))
+
+
+@pytest.fixture
+def heroic_prefix(gog_game, tmp_path, monkeypatch) -> Path:
+    """Linux: Heroic knows the GOG copy and runs it with Proton in a prefix of its own. Returns its user.reg."""
+    monkeypatch.setattr(proton, "ENABLED", True)
+    config = tmp_path / "heroic-config"
+    monkeypatch.setattr(heroic, "CONFIG_DIRS", [config])
+    wine_prefix = tmp_path / "Games" / "Heroic" / "Prefixes" / "Tzar The Burden of the Crown"
+    heroic_config(config, gog_game, wine_prefix)
+    reg = wine_prefix / "pfx" / "user.reg"
+    reg.parent.mkdir(parents=True)
+    reg.write_bytes(USER_REG.encode("latin-1"))
+    return reg

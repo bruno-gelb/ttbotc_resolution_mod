@@ -16,6 +16,28 @@ Static analysis of [Tzar: The Burden of the Crown][tzar] (Steam version 1.10, by
 - The frame bitmaps are `IMAGES/SCREENS/S_VIEW/SCREEN 800*.BMP` (800x600) and `SCREEN 1024*.BMP` (1024x768), 16-bit
   uncompressed BMP. The menu screens (`IMAGES/SCREENS/S_*/BACK.BMP`) are 800x600 only.
 
+## The GOG version
+
+Checked 2026-11-13 with GOG's offline installer `setup_tzar_1.01_(10554).exe` (Inno Setup 5.5.7, GOG game ID
+1207659252), unpacked with innoextract, and with a real install through Heroic 2.22.4 on Linux.
+
+- **Same game.** GOG calls it 1.01, but GOG's `Tzar.exe` is Steam's `Tzar_.exe`: same timestamp (1015080651), and
+  only 7 bytes differ, all in the PE header (the checksum and the security directory). Steam's copy carries a
+  6,072-byte Authenticode signature; every Steam exe is 6,072 bytes bigger than GOG's for the same reason, and the
+  DLLs are identical. Of the 2,914 files both have, only those exes differ, so `LAYOUT.INI`, the frame bitmap and
+  `STRINGS.INI` are the same too.
+- **The exe's name.** On Steam, `Tzar.exe` is a 21 KB launcher for `Tzar_.exe`; on GOG, `Tzar.exe` is the game.
+  cnc-ddraw's own `[Tzar]` preset applies to it directly.
+- **`tzar.ini`** ships as `__support/app/tzar.ini` (740 B: `LAYOUT1024L`, `DIRECTXDEVICE=-1`, sound counts
+  5 / 5 / 2, `DONESETUP=1`); Heroic copies it next to the game at install time.
+- **No DirectDraw wrapper.** `goggame.sdb` adds one Windows compatibility shim to `Tzar.exe`, `EmulateHeap`. GOG's
+  install script sets `HKCU\Software\Haemimont\Tzar` `Path` to the game folder.
+- **Heroic** keeps the install in `~/.config/heroic/gog_store/installed.json` (`install_path`) and the game's
+  settings in `GamesConfig/1207659252.json` (`winePrefix`, `wineVersion`). With a Proton build (Proton-CachyOS,
+  through umu), the prefix's `pfx` is a link to the prefix itself, so `<prefix>/pfx/user.reg` is the registry, laid
+  out like Steam's `compatdata/825730/pfx`. The stock game fails there too with "Invalid TZAR configuration", the
+  sound check below.
+
 ## Screen size in the code
 
 - The screen size lives in two 16-bit globals: width at `0x587732`, height at `0x587734`. Their defaults in `.data`

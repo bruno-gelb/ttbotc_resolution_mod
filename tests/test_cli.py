@@ -4,7 +4,7 @@ import sys
 import pytest
 from click.testing import CliRunner
 
-from conftest import make_exe, snapshot
+from conftest import GOG_EXE, STEAM_EXE, make_exe, snapshot
 from tzar_widescreen import __version__, cli, install
 
 
@@ -103,7 +103,7 @@ def test_declining_changes_nothing(game):
 
 def test_after_a_steam_update_it_offers_to_apply_again(game):
     run("install", "--width", 1368, "--game-dir", game, "--yes")
-    (game / install.EXE).write_bytes(make_exe())
+    (game / STEAM_EXE).write_bytes(make_exe())
     result = run("--game-dir", game, input="1\n")
     assert "put back" in result.output
     assert install.status(game).exe.width == 1368
@@ -143,3 +143,23 @@ def test_main_stops_cleanly_on_ctrl_d(game, monkeypatch, capsys):
         cli.main()
     assert exit_.value.code == 1
     assert "Stopped" in capsys.readouterr().out
+
+
+def test_status_names_the_games_exe(game, gog_game):
+    assert f"{STEAM_EXE}: 1024x768, 0 of" in run("status", "--game-dir", game).output
+    assert f"{GOG_EXE}: 1024x768, 0 of" in run("status", "--game-dir", gog_game).output
+
+
+def test_heroic_asks_to_start_the_game_once_from_heroic(gog_game, heroic_prefix):
+    heroic_prefix.unlink()
+    result = run("install", "--width", 1368, "--game-dir", gog_game, "--yes")
+    assert result.exit_code == 0
+    assert "Start Tzar once from Heroic" in result.output
+
+
+def test_gog_install_and_uninstall_from_the_command_line(gog_game, heroic_prefix):
+    original = snapshot(gog_game)
+    result = run("install", "--width", 1832, "--game-dir", gog_game, "--yes")
+    assert "Done: the game runs at 1832x768" in result.output
+    assert run("uninstall", "--game-dir", gog_game, "--yes").exit_code == 0
+    assert snapshot(gog_game) == original
