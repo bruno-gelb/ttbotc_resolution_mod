@@ -2,7 +2,7 @@
 
 Versions follow [semantic versioning](https://semver.org). Each version's section here becomes its release notes.
 
-## Unreleased
+## 0.6.0 (2026-11-13)
 
 - The game's music plays on Linux. It's MIDI, which Windows plays with a synthesizer of its own, and Wine has none, so
   until now only the sound effects played. The mod adds a small synthesizer to the game folder for it, with the
