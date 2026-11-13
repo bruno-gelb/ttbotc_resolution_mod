@@ -7,7 +7,7 @@
 3. Play from Steam as usual.
 
 To change the resolution, run the program again. Run it again after a Steam update too, to put the mod back. To
-remove the mod, see [Uninstall](../README.md#uninstall).
+remove the mod, see [Uninstall](uninstall-windows-steam.md).
 
 The mod hasn't been tried on Windows yet: if something goes wrong, please tell us in
 [#7](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/7).

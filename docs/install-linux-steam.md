@@ -12,7 +12,7 @@
 4. Play from Steam as usual.
 
 To change the resolution, run `./tzar-widescreen-linux` again. Run it again after a Steam update too, to put the mod
-back. To remove the mod, see [Uninstall](../README.md#uninstall).
+back. To remove the mod, see [Uninstall](uninstall-linux-steam.md).
 
 ## More
 
