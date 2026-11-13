@@ -100,7 +100,11 @@ redraw limit was found.
 
 They're [GitHub issues](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues): what's next, known problems
 and ideas. Open one before starting on something bigger. Bug reports, feature requests and testing help are most
-welcome, especially on Windows and with the GOG version.
+welcome, especially on Windows.
+
+Each issue starts with an **Impact** section: a level, **High**, **Medium** or **Low**, then who it affects and how
+(Steam or GOG, Windows or Linux, which players), and what it does for the mod. The rest goes under **Details**. The
+[issue template](.github/ISSUE_TEMPLATE/issue.md) starts new issues with both.
 
 ## Workflow
 
