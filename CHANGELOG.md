@@ -2,7 +2,7 @@
 
 Versions follow [semantic versioning](https://semver.org). Each version's section here becomes its release notes.
 
-## Unreleased
+## 0.3.0 (2026-11-13)
 
 - Linux: no more Steam launch options. The installer tells Proton to use cnc-ddraw in Tzar's own Proton settings, and
   removing the mod takes that back. Start the game once before installing, so that Proton sets it up. If you added
