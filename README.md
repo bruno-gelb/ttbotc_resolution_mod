@@ -28,6 +28,18 @@ Run the program again and choose to remove the mod, or let your launcher put the
 
 ## Compared to other projects
 
+The ones players are most likely to find, briefly. The full comparison, with the pros and cons of each against this
+mod, is in [Compared to other projects](docs/compared-to-other-projects.md).
+
+- The [HD Patch](https://www.moddb.com/games/tzar-the-burden-of-the-crown/downloads/tzar-burden-of-the-crown-hd-patch-1280x720-1920x1200-ver-30)
+  (with TzarRunner) is the widescreen fix PCGamingWiki lists. It goes taller, up to 1920x1200, which this mod can't
+  do yet. But it ships a modified copy of the game's program, is Windows-only, and changes your monitor's
+  resolution, which gives black borders and scrolling glitches on bigger screens. This mod patches your own copy, works
+  on Linux too, and scales the picture to any screen.
+- The [Ready2Play Launcher](https://www.moddb.com/mods/tzar-r2p-launcher) and the
+  [GOG Preservation Patch](https://www.gog.com/forum/tzar_the_burden_of_the_crown/tzar_110_english_gog_preservation_patch)
+  make the game start on modern Windows and add the CD music, and the GOG patch adds the campaigns released only in
+  Spain and Italy. Neither is widescreen: they scale the 4:3 picture. This mod shows more of the map.
 - [ReTzar](https://github.com/ColCarlo/ReTzar) is a remake of the whole game in Rust and Bevy (GPL-3.0) that uses
   the art and data from your copy of [Tzar][tzar]: a new engine with crisp scaling up to 4K, HD art packs, extras and
   experimental native macOS and Linux builds. This mod goes the other way: it keeps the original 2002 game,
