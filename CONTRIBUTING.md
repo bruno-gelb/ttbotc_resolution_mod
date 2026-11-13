@@ -121,6 +121,10 @@ Each issue starts with an **Impact** section: a level, **High**, **Medium** or *
 (Steam or GOG, Windows or Linux, which players), and what it does for the mod. The rest goes under **Details**. The
 [issue template](.github/ISSUE_TEMPLATE/issue.md) starts new issues with both.
 
+Two labels sort the issues: `impact: high`, `medium` or `low`, matching the Impact section, and `effort: high`,
+`medium` or `low`, a rough guess at the work: a sitting or two for low, a few days for medium, a week or more, or
+big unknowns, for high. High impact with low effort goes first.
+
 ## Workflow
 
 - **Commit messages** follow [How to Write a Git Commit Message](https://cbea.ms/git-commit/): a subject line of up
