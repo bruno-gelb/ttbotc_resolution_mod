@@ -2,7 +2,7 @@
 
 Versions follow [semantic versioning](https://semver.org). Each version's section here becomes its release notes.
 
-## Unreleased
+## 0.6.1 (2026-11-13)
 
 - The licenses of everything the programs bundle now go along with them, as those licenses ask. cnc-ddraw's goes
   into the game folder as `ddraw-LICENSE.txt`, next to `ddraw.dll`. `--licenses` shows the licenses of Python, Click,
