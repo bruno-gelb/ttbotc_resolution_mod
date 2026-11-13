@@ -4,12 +4,16 @@ Other ways players make [Tzar: The Burden of the Crown][tzar] work on modern PCs
 come from the Steam thread [DONT BUY][thread], PCGamingWiki's [page on the game][pcgw] and the GOG forum. Checked
 2026-11-13 ([#22](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/22)).
 
-For comparison, this mod: patches 14 bytes of the game's own program, widens the screen layout and the frame around the
-map, and adds [cnc-ddraw][cnc-ddraw] to scale the picture to your screen. The game shows more of the map, at any width
-from 1032 to 2198 and a height of 768, with the left panel only. It installs and uninstalls with one program, keeps
-the originals, is made for the Steam and GOG versions, on Windows and on Linux (Proton, Heroic), and plays the music
-on Linux. It's MIT-licensed and ships none of the game's files. It hasn't been tried on Windows yet
-([#7](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/7)). See [How it works](how-it-works.md).
+For comparison, this mod ([how it works](how-it-works.md)):
+
+- patches 14 bytes of the game's own program, widens the screen layout and the frame around the map, and adds
+  [cnc-ddraw][cnc-ddraw] to scale the picture to your screen;
+- shows more of the map, at any width from 1032 to 2198 and a height of 768, with the left panel only;
+- installs and uninstalls with one program, and keeps the originals;
+- is made for the Steam and GOG versions, on Windows and on Linux (Proton, Heroic), though it hasn't been tried on
+  Windows yet ([#7](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/7));
+- plays the music on Linux;
+- is MIT-licensed and ships none of the game's files.
 
 Every project here is someone's work to keep Tzar playable, and many players are happy with them. This page is to
 help you pick the one that suits you, not to judge anyone's work. Sorted from the most viable and popular to the
