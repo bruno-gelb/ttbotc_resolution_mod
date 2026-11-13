@@ -10,7 +10,7 @@ as 21:9 for an ultrawide monitor, so the game shows more of the map instead of s
 
 ## Install
 
-You need [Tzar: The Burden of the Crown][tzar] from Steam or [GOG][gog]. The original CD version isn't supported.
+You need [Tzar: The Burden of the Crown][tzar] from Steam or [GOG][gog].
 
 - [Windows + Steam](docs/install-windows-steam.md)
 - [Windows + GOG](docs/install-windows-gog.md)
@@ -40,9 +40,8 @@ Run the program again and choose to remove the mod, or let your launcher put the
 ## Help wanted
 
 Known problems and plans are [GitHub issues](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues). Bug
-reports, feature requests and help with testing are most welcome there. Testing on Windows helps the most, with the
-Steam or the GOG version, since the mod hasn't been tried there yet: see
-[#7](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/7).
+reports, feature requests and help with testing are most welcome there. Testing on Windows helps the most, since I
+don't currently have a machine with it: see [#7](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/7).
 
 ## License
 
