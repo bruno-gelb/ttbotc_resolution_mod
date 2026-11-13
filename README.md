@@ -1,7 +1,8 @@
 # [Tzar: The Burden of the Crown][tzar] — widescreen resolution mod
 
 An unofficial fan mod that runs [Tzar][tzar] ([Haemimont Games][haemimont], 2000) at a widescreen resolution, such
-as 21:9 for an ultrawide monitor, so the game shows more of the map instead of stretching a 4:3 picture.
+as 21:9 for an ultrawide monitor, so the game shows more of the map instead of stretching a 4:3 picture
+([how it works](docs/how-it-works.md)).
 
 ![Tzar at 1832x768 with the left panel, scaled up to a 3440x1440 ultrawide monitor](docs/screenshots/tzar-1832x768-ultrawide.png)
 
@@ -23,8 +24,7 @@ You need [Tzar: The Burden of the Crown][tzar] from Steam. The GOG and CD versio
 2. Press Enter twice: the program finds the game, picks the resolution that matches your screen and installs the mod.
 3. Play from Steam as usual.
 
-To change the resolution or remove the mod, run the program again. Run it again after a Steam update too, to put the
-mod back.
+To change the resolution, run the program again. Run it again after a Steam update too, to put the mod back.
 
 <details>
 <summary>Windows says it protected your PC</summary>
@@ -46,31 +46,14 @@ doesn't know it. Click **More info**, then **Run anyway**.
 
 </details>
 
-## How it works
+## Uninstall
 
-The game was made for screens up to 1024x768. The mod changes five things, and nothing else: the game's rules, AI
-and saves stay exactly as they were. The program keeps the original files and puts them back when you remove the
-mod.
+Run the program again and choose to remove the mod. It puts the game's original files back.
 
-1. **14 bytes in the game's program** (`Tzar_.exe`). Four make the game's 1024x768 mode use your width instead.
-   Eight fix a limit in how the game redraws the map: to save work, it only redraws the parts of the screen that
-   changed, and its record of those parts only reached 1024 pixels across. Past that point nothing was ever redrawn,
-   and the mouse cursor left a trail. Now each entry in that record covers twice the width, so it reaches 2048
-   pixels. The last two stop the game from refusing to start ("Invalid TZAR configuration detected") when your
-   sound devices differ from the ones its settings were saved with, which under Linux is almost always.
-2. **The screen layout.** The game reads where the map, the minimap and the buttons go from a text file,
-   `DATA/LAYOUT.INI`. The mod gives the map view the extra width.
-3. **The frame around the map**, a picture the game draws under the map and the panels, is made wider to match,
-   from the game's own picture.
-4. **[cnc-ddraw](https://github.com/FunkyFr3sh/cnc-ddraw)**, a popular open-source replacement for DirectDraw, the
-   graphics library old Windows games use. No monitor has a mode like 1832x768, so cnc-ddraw offers one to the game and
-   scales the picture up to fill your screen. On Linux, the program also tells Proton, in the game's own Proton
-   settings, to use cnc-ddraw instead of its built-in DirectDraw.
-5. **The version line on the main menu**, in its bottom-right corner, gets the mod's name and version in front:
-   `ttbotc_resolution_mod 0.4.0. game Version 1.10, 2/03/2002`. The game takes the word "Version" from its text
-   file `LOCAL/STRINGS.INI`, so that one line is all that changes.
-
-The details, down to the addresses in the game's code, are in [docs/findings.md](docs/findings.md).
+Without the program, Steam can put them back too: in your Library, right-click Tzar, then **Properties**,
+**Installed Files**, [**Verify integrity of game files**](https://help.steampowered.com/faqs/view/0C48-FCBD-DA71-93EB).
+That leaves the few files the mod added in the game folder: delete `ddraw.dll`, `ddraw.ini`, `Shaders` and
+`tzar-widescreen-backup` too.
 
 ## Compared to other projects
 
