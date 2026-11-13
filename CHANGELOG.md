@@ -4,6 +4,9 @@ Versions follow [semantic versioning](https://semver.org). Each version's sectio
 
 ## Unreleased
 
+- The main menu shows the mod's version: its version line in the bottom-right corner now reads
+  `ttbotc_resolution_mod 0.4.0. game Version 1.10, 2/03/2002`. Removing the mod puts the game's line back
+  ([#34](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/34)).
 - The programs carry their version in their file metadata: on Windows under Properties, Details, on Linux as a
   package note that `readelf -n` shows ([#32](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/32)).
 

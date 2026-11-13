@@ -1,7 +1,7 @@
 import pytest
 
-from conftest import USER_REG, make_exe, make_frame, snapshot
-from tzar_widescreen import exe_patch, frame, ini, install, proton, resolutions
+from conftest import STRINGS_INI, USER_REG, make_exe, make_frame, snapshot
+from tzar_widescreen import __version__, exe_patch, frame, ini, install, proton, resolutions
 from tzar_widescreen.manifest import FILE, Manifest
 
 
@@ -79,6 +79,68 @@ def test_an_exe_patched_by_hand_is_backed_up_as_the_original(game):
     (game / install.EXE).write_bytes(exe_patch.apply(make_exe(), 1832, 768))
     install.install(game, 1832, log=quiet)
     assert (game / install.BACKUP_DIR / install.EXE).read_bytes() == make_exe()
+
+
+LABEL = f"ttbotc_resolution_mod {__version__}. game Version"
+
+
+def menu_label(game):
+    return ini.get_key(ini.read(game / install.STRINGS_INI), "general", "version")
+
+
+def test_main_menu_shows_the_mods_version(game):
+    install.install(game, 1832, log=quiet)
+    assert menu_label(game) == LABEL
+    # only that value changed
+    assert ini.read(game / install.STRINGS_INI) == STRINGS_INI.replace("= Version", f"= {LABEL}")
+    assert (game / install.BACKUP_DIR / install.STRINGS_INI).read_bytes() == STRINGS_INI.encode("latin-1")
+
+
+def test_the_menu_label_isnt_added_twice(game):
+    install.install(game, 1832, log=quiet)
+    install.install(game, 1368, log=quiet)
+    assert menu_label(game) == LABEL
+
+
+def test_an_install_from_before_the_label_gets_it(game):
+    install.install(game, 1832, log=quiet)
+    # what 0.3.0 left: STRINGS.INI untouched and not in the backup
+    saved = game / install.BACKUP_DIR / install.STRINGS_INI
+    (game / install.STRINGS_INI).write_bytes(saved.read_bytes())
+    saved.unlink()
+    install.install(game, 1832, log=quiet)
+    assert menu_label(game) == LABEL
+    assert saved.read_bytes() == STRINGS_INI.encode("latin-1")
+    install.uninstall(game, log=quiet)
+    assert (game / install.STRINGS_INI).read_bytes() == STRINGS_INI.encode("latin-1")
+
+
+def test_uninstall_from_before_the_label_leaves_strings_ini_alone(game):
+    install.install(game, 1832, log=quiet)
+    saved = game / install.BACKUP_DIR / install.STRINGS_INI
+    (game / install.STRINGS_INI).write_bytes(saved.read_bytes())
+    saved.unlink()
+    install.uninstall(game, log=quiet)
+    assert (game / install.STRINGS_INI).read_bytes() == STRINGS_INI.encode("latin-1")
+
+
+def test_a_label_left_behind_is_not_kept_as_the_original(game):
+    # an older version of the mod removed itself without knowing about the label
+    path = game / install.STRINGS_INI
+    ini.write(path, ini.set_key(ini.read(path), "general", "version", "ttbotc_resolution_mod 0.4.0. game Version"))
+    install.install(game, 1832, log=quiet)
+    assert menu_label(game) == LABEL
+    install.uninstall(game, log=quiet)
+    assert path.read_bytes() == STRINGS_INI.encode("latin-1")
+
+
+def test_a_game_without_strings_ini(game):
+    (game / install.STRINGS_INI).unlink()
+    original = snapshot(game)
+    install.install(game, 1832, log=quiet)
+    assert not (game / install.BACKUP_DIR / install.STRINGS_INI).exists()
+    install.uninstall(game, log=quiet)
+    assert snapshot(game) == original
 
 
 def test_status(game):
