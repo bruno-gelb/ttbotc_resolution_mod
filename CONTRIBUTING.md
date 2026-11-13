@@ -53,6 +53,17 @@ Every third-party dependency is pinned to an exact version: Python in `.python-v
 `fetch_cnc_ddraw.py`, and in the release workflow the actions, uv and the runner images. Update a pin on purpose,
 in its own commit, and run `uv lock` after changing `pyproject.toml`.
 
+Run the tests with:
+
+```bash
+uv run pytest
+```
+
+They live in `tests/` and run on every pull request, on Linux and Windows. The game's files can't go into the
+repository, so `tests/conftest.py` builds synthetic ones: a minimal exe with the original bytes at every patch
+address, a generated frame bitmap and small INI files, plus stand-ins for cnc-ddraw's files. Real-game checks
+(the game starts, the map fills the width) stay manual: describe them in the pull request.
+
 To build the single-file program for your platform into `dist/` (the same command the release uses):
 
 ```bash
