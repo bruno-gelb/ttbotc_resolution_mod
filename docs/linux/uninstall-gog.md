@@ -2,7 +2,7 @@
 
 Run `./tzar-widescreen-linux` again, in the folder you installed from, and choose to remove the mod. It puts the
 game's original files back and removes everything it added, including its setting in Heroic's Wine prefix. If you
-deleted the program, run the line from [the install steps](install-linux-gog.md) again.
+deleted the program, run the line from [the install steps](install-gog.md) again.
 
 ## Without the program
 

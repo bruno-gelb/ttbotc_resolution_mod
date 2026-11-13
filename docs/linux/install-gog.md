@@ -14,7 +14,7 @@ This is for the GOG version installed with [Heroic](https://heroicgameslauncher.
 4. Play from Heroic as usual.
 
 To change the resolution, run `./tzar-widescreen-linux` again. Run it again after Heroic updates the game too, to put
-the mod back. To remove the mod, see [Uninstall](uninstall-linux-gog.md).
+the mod back. To remove the mod, see [Uninstall](uninstall-gog.md).
 
 ## More
 
