@@ -17,8 +17,8 @@ def available() -> bool:
     return all((BUNDLED / name).exists() for name in FILES)
 
 
-def install(game_dir: Path, width: int, height: int) -> None:
-    """Copy cnc-ddraw into the game folder and configure it for this screen size."""
+def install(game_dir: Path, width: int, height: int, exe: str) -> None:
+    """Copy cnc-ddraw into the game folder and configure it for this screen size and the game's exe."""
     shutil.copy2(BUNDLED / "ddraw.dll", game_dir / "ddraw.dll")
     shutil.copytree(BUNDLED / "Shaders", game_dir / "Shaders", dirs_exist_ok=True)
     text = ini.read(BUNDLED / "ddraw.ini")
@@ -30,6 +30,7 @@ def install(game_dir: Path, width: int, height: int) -> None:
         ("renderer", "opengl"),
     ]:
         text = ini.set_key(text, "ddraw", key, value)
-    # The game's process is Tzar_.exe (Tzar.exe is Steam's launcher), so cnc-ddraw's own [Tzar] preset doesn't apply.
-    text = ini.set_key(text, "Tzar_", "adjmouse", "true")
+    # cnc-ddraw's per-game sections are named after the exe. Its own [Tzar] preset covers GOG's Tzar.exe; on Steam
+    # the game is Tzar_.exe (Tzar.exe is the launcher), so the preset's setting goes into a [Tzar_] section too.
+    text = ini.set_key(text, Path(exe).stem, "adjmouse", "true")
     ini.write(game_dir / "ddraw.ini", text)

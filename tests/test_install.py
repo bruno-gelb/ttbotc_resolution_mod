@@ -1,6 +1,8 @@
+import json
+
 import pytest
 
-from conftest import STRINGS_INI, USER_REG, make_exe, make_frame, snapshot
+from conftest import GOG_EXE, STEAM_EXE, STRINGS_INI, USER_REG, make_exe, make_frame, snapshot
 from tzar_widescreen import __version__, exe_patch, frame, ini, install, proton, resolutions
 from tzar_widescreen.manifest import FILE, Manifest
 
@@ -10,7 +12,7 @@ def quiet(_line):
 
 
 def check_installed(game, width):
-    assert exe_patch.inspect((game / install.EXE).read_bytes()).width == width
+    assert exe_patch.inspect((game / STEAM_EXE).read_bytes()).width == width
     layout = ini.read(game / install.LAYOUT_INI)
     assert ini.get_key(layout, "LAYOUT1024L", "view") == f"150,30,{width - 150},738"
     assert frame.size((game / install.FRAME).read_bytes()) == (width, 768)
@@ -76,9 +78,9 @@ def test_someone_elses_ddraw_is_kept_and_put_back(game):
 
 
 def test_an_exe_patched_by_hand_is_backed_up_as_the_original(game):
-    (game / install.EXE).write_bytes(exe_patch.apply(make_exe(), 1832, 768))
+    (game / STEAM_EXE).write_bytes(exe_patch.apply(make_exe(), 1832, 768))
     install.install(game, 1832, log=quiet)
-    assert (game / install.BACKUP_DIR / install.EXE).read_bytes() == make_exe()
+    assert (game / install.BACKUP_DIR / STEAM_EXE).read_bytes() == make_exe()
 
 
 LABEL = f"ttbotc_resolution_mod {__version__}. game Version"
@@ -153,7 +155,7 @@ def test_status(game):
 
 def test_a_steam_update_is_detected_and_fixed(game):
     install.install(game, 1832, log=quiet)
-    (game / install.EXE).write_bytes(make_exe())  # Steam put the original back
+    (game / STEAM_EXE).write_bytes(make_exe())  # Steam put the original back
     state = install.status(game)
     assert state.installed and state.exe.is_original
     install.install(game, state.width, log=quiet)
@@ -167,7 +169,7 @@ def test_refuses_files_changed_by_something_else(game):
 
 
 def test_refuses_an_unknown_exe(game):
-    (game / install.EXE).write_bytes(b"MZ something else")
+    (game / STEAM_EXE).write_bytes(b"MZ something else")
     with pytest.raises(install.InstallError, match="isn't supported"):
         install.install(game, 1832, log=quiet)
 
@@ -202,7 +204,7 @@ def test_linux_sets_and_removes_the_proton_override(game, prefix):
     original = prefix.read_bytes()
     assert install.install(game, 1832, log=quiet) is True
     text = proton.read(prefix)
-    assert proton.current(text) == proton.VALUE
+    assert proton.current(text, STEAM_EXE) == proton.VALUE
     manifest = Manifest.load(game / install.BACKUP_DIR)
     assert manifest.proton_override is True and manifest.proton_previous is None
     assert not install.status(game).proton_missing
@@ -213,16 +215,16 @@ def test_linux_sets_and_removes_the_proton_override(game, prefix):
 
 
 def test_linux_puts_back_an_override_that_was_there(game, prefix):
-    before = proton.add(proton.read(prefix), 7).replace(proton.VALUE, '"ddraw"="builtin"')
+    before = proton.add(proton.read(prefix), 7, STEAM_EXE).replace(proton.VALUE, '"ddraw"="builtin"')
     prefix.write_bytes(before.encode("latin-1"))
     install.install(game, 1832, log=quiet)
-    assert proton.current(proton.read(prefix)) == proton.VALUE
+    assert proton.current(proton.read(prefix), STEAM_EXE) == proton.VALUE
     install.uninstall(game, log=quiet)
     assert proton.read(prefix) == before
 
 
 def test_linux_leaves_alone_an_override_the_player_set(game, prefix):
-    before = proton.add(proton.read(prefix), 7)
+    before = proton.add(proton.read(prefix), 7, STEAM_EXE)
     prefix.write_bytes(before.encode("latin-1"))
     install.install(game, 1832, log=quiet)
     assert Manifest.load(game / install.BACKUP_DIR).proton_override is False
@@ -255,3 +257,99 @@ def test_refuses_while_the_game_runs(game, prefix, monkeypatch):
     with pytest.raises(install.InstallError, match="quit the game"):
         install.install(game, 1832, log=quiet)
     assert snapshot(game) == original
+
+
+# GOG: the same files, with the game as Tzar.exe; on Linux, Heroic runs it in a Wine prefix of its own. It all goes
+# through the same code as Steam: only the exe's name and the prefix differ.
+
+
+def test_gog_install_and_uninstall(gog_game):
+    original = snapshot(gog_game)
+    install.install(gog_game, 1832, log=quiet)
+    assert exe_patch.inspect((gog_game / GOG_EXE).read_bytes()).width == 1832
+    assert not (gog_game / STEAM_EXE).exists()
+    assert Manifest.load(gog_game / install.BACKUP_DIR).exe == GOG_EXE
+    assert (gog_game / install.BACKUP_DIR / GOG_EXE).read_bytes() == make_exe()
+    assert ini.get_key(ini.read(gog_game / "ddraw.ini"), "Tzar", "adjmouse") == "true"  # cnc-ddraw's own preset
+    assert install.status(gog_game).exe_name == GOG_EXE
+    install.install(gog_game, 1368, log=quiet)
+    assert exe_patch.inspect((gog_game / GOG_EXE).read_bytes()).width == 1368
+    install.uninstall(gog_game, log=quiet)
+    assert snapshot(gog_game) == original
+
+
+def test_steam_leaves_its_launcher_alone(game):
+    launcher = (game / GOG_EXE).read_bytes()
+    install.install(game, 1832, log=quiet)
+    assert (game / GOG_EXE).read_bytes() == launcher
+    assert Manifest.load(game / install.BACKUP_DIR).exe == STEAM_EXE
+    assert install.status(game).exe_name == STEAM_EXE
+    assert not (game / install.BACKUP_DIR / GOG_EXE).exists()
+
+
+def test_heroic_sets_and_removes_the_override(gog_game, heroic_prefix):
+    original = heroic_prefix.read_bytes()
+    assert install.install(gog_game, 1832, log=quiet) is True
+    text = proton.read(heroic_prefix)
+    assert proton.current(text, GOG_EXE) == proton.VALUE
+    assert proton.current(text, STEAM_EXE) is None
+    assert Manifest.load(gog_game / install.BACKUP_DIR).proton_user_reg == str(heroic_prefix)
+    assert not install.status(gog_game).proton_missing
+    install.uninstall(gog_game, log=quiet)
+    assert heroic_prefix.read_bytes() == original
+
+
+def test_heroic_without_a_prefix_yet(gog_game, heroic_prefix):
+    heroic_prefix.unlink()
+    assert install.install(gog_game, 1832, log=quiet) is False
+    assert install.status(gog_game).proton_missing
+    heroic_prefix.write_bytes(USER_REG.encode("latin-1"))  # the player started the game once from Heroic
+    assert install.install(gog_game, 1832, log=quiet) is True
+    assert not install.status(gog_game).proton_missing
+    install.uninstall(gog_game, log=quiet)
+    assert heroic_prefix.read_bytes() == USER_REG.encode("latin-1")
+
+
+def test_linux_with_a_launcher_the_mod_doesnt_know(gog_game, monkeypatch):
+    monkeypatch.setattr(proton, "ENABLED", True)
+    original = snapshot(gog_game)
+    lines = []
+    assert install.install(gog_game, 1832, log=lines.append) is True
+    assert any('WINEDLLOVERRIDES="ddraw=n,b"' in line for line in lines)
+    assert not install.status(gog_game).proton_missing
+    install.uninstall(gog_game, log=quiet)
+    assert snapshot(gog_game) == original
+
+
+def as_installed_by_0_4_0(game):
+    """Rewrite the manifest the way 0.4.0 wrote it: no exe, no user.reg."""
+    path = game / install.BACKUP_DIR / FILE
+    data = json.loads(path.read_text())
+    del data["exe"], data["proton_user_reg"]
+    data["version"] = "0.4.0"
+    path.write_text(json.dumps(data))
+
+
+def test_upgrading_a_steam_install_from_0_4_0(game, prefix):
+    original = snapshot(game)
+    install.install(game, 1832, log=quiet)
+    as_installed_by_0_4_0(game)
+    manifest = Manifest.load(game / install.BACKUP_DIR)
+    assert manifest.exe == STEAM_EXE and manifest.proton_user_reg is None
+    state = install.status(game)
+    assert state.installed and state.exe_name == STEAM_EXE and not state.proton_missing
+    install.install(game, 1368, log=quiet)
+    check_installed(game, 1368)
+    assert Manifest.load(game / install.BACKUP_DIR).proton_user_reg == str(prefix)
+    install.uninstall(game, log=quiet)
+    assert snapshot(game) == original
+    assert prefix.read_bytes() == USER_REG.encode("latin-1")
+
+
+def test_uninstalling_a_0_4_0_steam_install(game, prefix):
+    original = snapshot(game)
+    install.install(game, 1832, log=quiet)
+    as_installed_by_0_4_0(game)
+    install.uninstall(game, log=quiet)
+    assert snapshot(game) == original
+    assert prefix.read_bytes() == USER_REG.encode("latin-1")

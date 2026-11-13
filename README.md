@@ -10,21 +10,21 @@ as 21:9 for an ultrawide monitor, so the game shows more of the map instead of s
 
 ## Install
 
-You need [Tzar: The Burden of the Crown][tzar] from Steam. The GOG and CD versions aren't supported yet
-([#9](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/9)).
+You need [Tzar: The Burden of the Crown][tzar] from Steam or [GOG][gog]. On Linux, the GOG version runs through
+[Heroic](https://heroicgameslauncher.com/). The original CD version isn't supported.
 
 1. Get the program and start it:
    - **Windows:** [download it][windows] and double-click it.
-   - **Linux:** start the game from Steam once, so that Proton sets it up. Then run this in a terminal:
+   - **Linux:** start the game once from Steam or Heroic, so that it sets the game up. Then run this in a terminal:
 
      ```bash
      curl -fLO https://github.com/bruno-gelb/ttbotc_resolution_mod/releases/latest/download/tzar-widescreen-linux && chmod +x tzar-widescreen-linux && ./tzar-widescreen-linux
      ```
 
 2. Press Enter twice: the program finds the game, picks the resolution that matches your screen and installs the mod.
-3. Play from Steam as usual.
+3. Play as usual.
 
-To change the resolution, run the program again. Run it again after a Steam update too, to put the mod back.
+To change the resolution, run the program again. Run it again after a game update too, to put the mod back.
 
 <details>
 <summary>Windows says it protected your PC</summary>
@@ -52,8 +52,8 @@ Run the program again and choose to remove the mod. It puts the game's original 
 
 Without the program, Steam can put them back too: in your Library, right-click Tzar, then **Properties**,
 **Installed Files**, [**Verify integrity of game files**](https://help.steampowered.com/faqs/view/0C48-FCBD-DA71-93EB).
-That leaves the few files the mod added in the game folder: delete `ddraw.dll`, `ddraw.ini`, `Shaders` and
-`tzar-widescreen-backup` too.
+In Heroic, it's the game's **Verify and Repair**. That leaves the few files the mod added in the game folder: delete
+`ddraw.dll`, `ddraw.ini`, `Shaders` and `tzar-widescreen-backup` too.
 
 ## Compared to other projects
 
@@ -69,10 +69,9 @@ That leaves the few files the mod added in the game folder: delete `ddraw.dll`, 
 ## Help wanted
 
 Known problems and plans are [GitHub issues](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues). Bug
-reports, feature requests and help with testing are most welcome there. Testing on Windows and with the GOG
-version helps the most, since the mod hasn't been tried on either yet: see
-[#7](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/7) and
-[#9](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/9).
+reports, feature requests and help with testing are most welcome there. Testing on Windows helps the most, with the
+Steam or the GOG version, since the mod hasn't been tried there yet: see
+[#7](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/7).
 
 ## License
 
@@ -83,15 +82,17 @@ include [cnc-ddraw](https://github.com/FunkyFr3sh/cnc-ddraw) by FunkyFr3sh, unde
 ## The game and its owners
 
 - This is an unofficial fan project. It is not affiliated with, endorsed by or connected to
-  [Haemimont Games][haemimont], the developer and Steam publisher of [Tzar: The Burden of the Crown][tzar], or to
-  any other publisher of the game.
+  [Haemimont Games][haemimont], the developer and Steam publisher of [Tzar: The Burden of the Crown][tzar], to
+  [GOG][gog], or to any other publisher or store of the game.
 - [Tzar: The Burden of the Crown][tzar], its executable, data files, artwork, music and trademarks belong to their
   respective owners. This repository contains none of them, and the mod will only ever ship its own changes (patches and
   configuration), never the game's files. The screenshots show the game's art, which belongs to its owners too.
-- The mod doesn't remove or get around any copy protection, and it won't. To use it, [buy the game][tzar].
+- The mod doesn't remove or get around any copy protection, and it won't. To use it, buy the game on [Steam][tzar]
+  or [GOG][gog].
 - The game's files are only changed on your computer, in your copy. Removing the mod puts the originals back, and
-  so does Steam's "Verify integrity of game files".
+  so do Steam's "Verify integrity of game files" and Heroic's "Verify and Repair".
 
 [tzar]: https://store.steampowered.com/app/825730/
+[gog]: https://www.gog.com/en/game/tzar_the_burden_of_the_crown
 [haemimont]: https://www.haemimontgames.com/
 [windows]: https://github.com/bruno-gelb/ttbotc_resolution_mod/releases/latest/download/tzar-widescreen-windows.exe

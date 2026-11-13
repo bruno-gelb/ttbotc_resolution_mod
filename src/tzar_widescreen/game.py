@@ -1,12 +1,19 @@
-"""Find the game folder: Steam libraries on Windows and Linux, or the folder the program runs from."""
+"""Find the game folder: Steam libraries, GOG installs (Heroic, and GOG's own installer on Windows), or the folder
+the program runs from. And which exe in it is the game.
+"""
 
 import os
 import re
 import sys
 from pathlib import Path
 
+from tzar_widescreen import heroic
+
 STEAM_APP_ID = 825730
-EXE = "Tzar_.exe"
+# The game's own exe. On Steam it's Tzar_.exe, and Tzar.exe is a 21 KB launcher for it. On GOG, Tzar.exe is the
+# game: the same build as Steam's Tzar_.exe, without Steam's signature.
+EXES = ["Tzar_.exe", "Tzar.exe"]
+LAUNCHER_SIZE = 100_000  # bytes: Steam's launcher is smaller, the game's 1.7 MB exe bigger
 
 
 def resolve(root: Path, relative: str) -> Path:
@@ -25,8 +32,20 @@ def resolve(root: Path, relative: str) -> Path:
     return path
 
 
+def exe_name(path: Path) -> str | None:
+    """The game's exe in the folder: Tzar_.exe (Steam) or Tzar.exe (GOG). None if neither is there."""
+    for name in EXES:
+        exe = resolve(path, name)
+        try:
+            if exe.is_file() and exe.stat().st_size > LAUNCHER_SIZE:
+                return name
+        except OSError:
+            pass
+    return None
+
+
 def is_game_dir(path: Path) -> bool:
-    return resolve(path, EXE).is_file()
+    return exe_name(path) is not None
 
 
 def _steam_roots() -> list[Path]:
@@ -86,10 +105,32 @@ def _steam_game_dirs() -> list[Path]:
     return found
 
 
+def _gog_windows_dirs() -> list[Path]:
+    """Windows: where GOG's installer put the game. Its install script sets Haemimont's own Path value, and GOG
+    Galaxy keeps its games under GOG.com\\Games\\<game id>."""
+    if sys.platform != "win32":
+        return []
+    import winreg
+
+    found = []
+    for hive, key, value in [
+        (winreg.HKEY_CURRENT_USER, r"Software\Haemimont\Tzar", "Path"),
+        (winreg.HKEY_LOCAL_MACHINE, rf"SOFTWARE\WOW6432Node\GOG.com\Games\{heroic.GOG_ID}", "path"),
+        (winreg.HKEY_LOCAL_MACHINE, rf"SOFTWARE\GOG.com\Games\{heroic.GOG_ID}", "path"),
+    ]:
+        try:
+            with winreg.OpenKey(hive, key) as k:
+                found.append(Path(winreg.QueryValueEx(k, value)[0]))
+        except OSError:
+            pass
+    return found
+
+
 def find() -> list[Path]:
-    """Game folders found on this machine: the program's own folder and the working folder first, then Steam."""
+    """Game folders found on this machine: the program's own folder and the working folder first, then Steam, then
+    GOG (Heroic, and GOG's installer on Windows)."""
     here = Path(sys.executable if getattr(sys, "frozen", False) else sys.argv[0]).resolve().parent
-    candidates = [here, Path.cwd(), *_steam_game_dirs()]
+    candidates = [here, Path.cwd(), *_steam_game_dirs(), *(i.game_dir for i in heroic.installs()), *_gog_windows_dirs()]
     seen, result = set(), []
     for path in candidates:
         try:

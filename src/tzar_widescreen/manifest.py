@@ -17,6 +17,8 @@ class DamagedManifest(Exception):
 @dataclass
 class Manifest:
     version: str  # the mod's version that last installed it
+    # The game's exe the mod patched: Tzar_.exe (Steam) or Tzar.exe (GOG). Before 0.5.0 the mod only knew Steam's.
+    exe: str = "Tzar_.exe"
     # The game's width the mod was installed with. 0.1.0 didn't record it: it always used 1832.
     width: int = 1832
     # Original values of the tzar.ini keys the mod changes, as "SECTION/KEY": value (None if the key wasn't there).
@@ -27,6 +29,9 @@ class Manifest:
     # (None if there wasn't one), to put back on uninstall. Older versions used a launch option instead.
     proton_override: bool = False
     proton_previous: str | None = None
+    # The user.reg it set it in (Steam's or Heroic's prefix), so uninstall finds it even if the launcher's settings
+    # change. None before 0.5.0: Steam's prefix then.
+    proton_user_reg: str | None = None
 
     @classmethod
     def load(cls, backup_dir: Path) -> "Manifest | None":
@@ -49,12 +54,13 @@ class Manifest:
         return manifest
 
     def _check(self, path: Path) -> None:
-        ok = (isinstance(self.version, str) and isinstance(self.width, int)
+        ok = (isinstance(self.version, str) and isinstance(self.exe, str) and isinstance(self.width, int)
               and isinstance(self.tzar_ini, dict) and all(isinstance(k, str) for k in self.tzar_ini)
               and all(v is None or isinstance(v, str) for v in self.tzar_ini.values())
               and isinstance(self.moved_aside, list) and all(isinstance(n, str) for n in self.moved_aside)
               and isinstance(self.proton_override, bool)
-              and (self.proton_previous is None or isinstance(self.proton_previous, str)))
+              and (self.proton_previous is None or isinstance(self.proton_previous, str))
+              and (self.proton_user_reg is None or isinstance(self.proton_user_reg, str)))
         if not ok:
             raise DamagedManifest(f"{path} has values of the wrong type")
 

@@ -9,7 +9,7 @@ from pathlib import Path
 
 import click
 
-from tzar_widescreen import __version__, game, install, resolutions
+from tzar_widescreen import __version__, game, install, proton, resolutions
 
 ISSUES = "https://github.com/bruno-gelb/ttbotc_resolution_mod/issues"
 WIDTH = click.IntRange(resolutions.MIN_WIDTH, resolutions.MAX_WIDTH)
@@ -36,7 +36,8 @@ def _menu(title: str, options: list[str], default: int = 1) -> int:
 def _pick_game_dir(given: Path | None) -> Path:
     if given:
         if not game.is_game_dir(given):
-            raise install.InstallError(f"{given} doesn't look like the Tzar folder (no {game.EXE} in it)")
+            raise install.InstallError(f"{given} doesn't look like the Tzar folder "
+                                       f"(no {' or '.join(game.EXES)} in it)")
         return given.resolve()
     found = game.find()
     if not found:
@@ -107,9 +108,11 @@ def _open_game(game_dir: Path | None) -> tuple[Path, install.Status]:
 def _do_install(path: Path, width: int) -> None:
     ready = install.install(path, width, log=lambda line: click.echo(f"  {line}"))
     if not ready:
-        click.echo(f"\nAlmost done: the game's files are set for {width}x{HEIGHT}, but Proton hasn't set the game up")
-        click.echo("yet, so it would still use its own DirectDraw. Start Tzar once from Steam, quit it, and run this")
-        click.echo("program again.")
+        prefix = proton.find_prefix(path)
+        launcher = prefix.launcher if prefix else "its launcher"
+        click.echo(f"\nAlmost done: the game's files are set for {width}x{HEIGHT}, but {launcher} hasn't set the game")
+        click.echo(f"up yet, so it would still use Wine's own DirectDraw. Start Tzar once from {launcher}, quit it,")
+        click.echo("and run this program again.")
         return
     click.echo(f"\nDone: the game runs at {width}x{HEIGHT}. Start it as usual.")
     click.echo("Keep the game's Menu Layout with the panel on the left: the other two don't work with the mod yet.")
@@ -128,7 +131,7 @@ def _interactive(path: Path, state: install.Status) -> None:
         if reverted:
             click.echo("The mod is installed, but the game's files were put back, probably by a Steam update.\n")
         else:
-            click.echo("The mod is installed, but Tzar's Proton prefix doesn't have its setting yet.\n")
+            click.echo("The mod is installed, but the game's Wine prefix doesn't have its setting yet.\n")
         picked = _menu("What now?", ["apply the mod again", "change the resolution and apply it",
                                      "remove the mod", "nothing"])
         if picked == 1:
@@ -209,7 +212,7 @@ def status_command(ctx: click.Context, game_dir: Path | None) -> None:
     """Show what's installed, without changing anything."""
     _, state = _open_game(game_dir or ctx.obj["game_dir"])
     if state.exe:
-        click.echo(f"Tzar_.exe: {state.exe.width}x{state.exe.height}, "
+        click.echo(f"{state.exe_name}: {state.exe.width}x{state.exe.height}, "
                    f"{state.exe.patched} of {state.exe.total} fixes applied")
 
 
