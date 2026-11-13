@@ -4,39 +4,34 @@ Run it with no arguments (double-click on Windows) and it finds the game, asks w
 anything.
 """
 
-import argparse
 import sys
 from pathlib import Path
+
+import click
 
 from tzar_widescreen import __version__, game, install, resolutions
 
 ISSUES = "https://github.com/bruno-gelb/ttbotc_resolution_mod/issues"
 LAUNCH_OPTIONS = 'WINEDLLOVERRIDES="ddraw=n,b" %command%'
+WIDTH = click.IntRange(resolutions.MIN_WIDTH, resolutions.MAX_WIDTH)
+HEIGHT = resolutions.HEIGHT
 
-
-def _input(prompt: str) -> str:
-    try:
-        return input(prompt).strip()
-    except EOFError:
-        return ""
-
-
-def _ask(question: str, default: bool) -> bool:
-    answer = _input(f"{question} {'[Y/n]' if default else '[y/N]'} ").lower()
-    return default if not answer else answer in ("y", "yes")
+width_option = click.option(
+    "--width", type=WIDTH,
+    help=f"The game's width in pixels, {resolutions.MIN_WIDTH} to {resolutions.MAX_WIDTH}; the height stays {HEIGHT}. "
+         "Default: your screen's shape.")
+game_dir_option = click.option(
+    "--game-dir", type=click.Path(exists=True, file_okay=False, path_type=Path),
+    help="The Tzar folder, if it isn't found on its own.")
+yes_option = click.option("--yes", "-y", is_flag=True, help="Don't ask anything.")
 
 
 def _menu(title: str, options: list[str], default: int = 1) -> int:
-    """Numbered choice; Enter picks the default. Returns 1-based."""
-    print(title)
+    """A numbered choice; Enter picks the default. Returns it 1-based."""
+    click.echo(title)
     for i, option in enumerate(options, 1):
-        print(f"  {i}. {option}")
-    while True:
-        answer = _input(f"Choose 1-{len(options)} [{default}]: ")
-        if not answer:
-            return default
-        if answer.isdigit() and 1 <= int(answer) <= len(options):
-            return int(answer)
+        click.echo(f"  {i}. {option}")
+    return click.prompt("Choose", type=click.IntRange(1, len(options)), default=default)
 
 
 def _pick_game_dir(given: Path | None) -> Path:
@@ -79,20 +74,14 @@ def _resolution_choices() -> tuple[list[tuple[int, str]], str]:
 
 def _choose_width(current: int | None = None) -> int:
     choices, note = _resolution_choices()
-    print(note)
-    print(f"The height stays {resolutions.HEIGHT}; the width sets the shape. "
-          "The picture is scaled to fill your screen.")
-    options = [f"{w}x{resolutions.HEIGHT} ({label})" + (" (now)" if w == current else "") for w, label in choices]
+    click.echo(note)
+    click.echo(f"The height stays {HEIGHT}; the width sets the shape. The picture is scaled to fill your screen.")
+    options = [f"{w}x{HEIGHT} ({label})" + (" (now)" if w == current else "") for w, label in choices]
     options.append(f"another width, from {resolutions.MIN_WIDTH} to {resolutions.MAX_WIDTH}")
     picked = _menu("Which resolution?", options)
     if picked <= len(choices):
         return choices[picked - 1][0]
-    while True:
-        answer = _input("Width: ")
-        try:
-            return resolutions.check(int(answer))
-        except ValueError as error:
-            print(f"  {error}" if isinstance(error, resolutions.BadWidth) else "  a number, please")
+    return click.prompt("Width", type=WIDTH)
 
 
 def _default_width() -> int:
@@ -100,126 +89,145 @@ def _default_width() -> int:
     return resolutions.for_screen(*screen) if screen else resolutions.DEFAULT_WIDTH
 
 
-def _after_install(width: int) -> None:
-    print(f"\nDone: the game runs at {width}x{resolutions.HEIGHT}. Start it as usual.")
-    print("Keep the game's Menu Layout with the panel on the left: the other two don't work with the mod yet.")
-    print("To change the resolution or remove the mod, run this program again.")
-    if sys.platform != "win32":
-        print("\nOn Linux, the game runs through Proton and needs one more thing, once:")
-        print("in Steam, right-click Tzar, Properties, General, and set Launch Options to:\n")
-        print(f"    {LAUNCH_OPTIONS}\n")
-        print("It tells Proton to use the mod's DirectDraw (cnc-ddraw) instead of its own.")
-
-
-def _after_uninstall() -> None:
-    print("\nDone: the game is back to how it was.")
-    if sys.platform != "win32":
-        print("You can clear Tzar's Launch Options in Steam now.")
-
-
-def _interactive(state: install.Status) -> tuple[str | None, int | None]:
-    """Ask what to do. Returns (command, width), command None to do nothing."""
-    exe = state.exe
-    reverted = exe is not None and (exe.patched < exe.total or exe.width == 1024)
-    if state.installed and reverted:
-        print("The mod is installed, but the game's files were put back, probably by a Steam update.\n")
-        picked = _menu("What now?", ["apply the mod again", "change the resolution and apply it",
-                                     "remove the mod", "nothing"])
-        if picked == 1:
-            return "install", state.width or resolutions.DEFAULT_WIDTH
-        if picked == 2:
-            return "install", _choose_width(state.width)
-        return ("uninstall", None) if picked == 3 else (None, None)
-    if state.installed:
-        picked = _menu("What now?", ["change the resolution", "remove the mod and put the original files back",
-                                     "nothing"], default=3)
-        if picked == 1:
-            print()
-            return "install", _choose_width(state.width)
-        return ("uninstall", None) if picked == 2 else (None, None)
-    print("This makes the game run at a widescreen resolution, scaled to your screen. It changes a few of the")
-    print(f"game's files and keeps the originals in {install.BACKUP_DIR}/, so running this program again")
-    print("can change the resolution or remove the mod.\n")
-    width = _choose_width()
-    print()
-    return ("install", width) if _ask(f"Install the mod at {width}x{resolutions.HEIGHT}?", default=True) \
-        else (None, None)
-
-
-def run(args: argparse.Namespace) -> int:
-    print(f"Tzar widescreen mod {__version__}\n")
-    game_dir = _pick_game_dir(args.game_dir)
-    state = install.status(game_dir)
-    print(f"Game folder: {game_dir}")
+def _open_game(game_dir: Path | None) -> tuple[Path, install.Status]:
+    click.echo(f"Tzar widescreen mod {__version__}\n")
+    path = _pick_game_dir(game_dir)
+    state = install.status(path)
+    click.echo(f"Game folder: {path}")
     if state.exe_error and not state.installed:
         raise install.InstallError(f"this version of the game isn't supported yet ({state.exe_error}). "
                                    f"Please tell us about it: {ISSUES}")
     if state.installed:
-        size = f", {state.width}x{resolutions.HEIGHT}" if state.width else ""
-        print(f"Mod: installed (version {state.version}{size})\n")
+        size = f", {state.width}x{HEIGHT}" if state.width else ""
+        click.echo(f"Mod: installed (version {state.version}{size})\n")
     else:
-        print("Mod: not installed\n")
-
-    command, width = args.command, args.width
-    if command == "status":
-        if state.exe:
-            print(f"Tzar_.exe: {state.exe.width}x{state.exe.height}, "
-                  f"{state.exe.patched} of {state.exe.total} fixes applied")
-        return 0
-    if command is None:
-        command, width = _interactive(state)
-        if command is None:
-            return 0
-    elif command == "install":
-        if width is None:
-            width = _default_width() if args.yes else _choose_width(state.width)
-        if not args.yes and not _ask(f"Install the mod at {width}x{resolutions.HEIGHT}?", default=True):
-            return 0
-    elif not args.yes and not _ask("Remove the mod?", default=True):
-        return 0
-
-    if command == "install":
-        install.install(game_dir, width, log=lambda line: print(f"  {line}"))
-        _after_install(width)
-    else:
-        install.uninstall(game_dir, log=lambda line: print(f"  {line}"))
-        _after_uninstall()
-    return 0
+        click.echo("Mod: not installed\n")
+    return path, state
 
 
-def _width(value: str) -> int:
-    try:
-        return resolutions.check(int(value))
-    except ValueError as error:
-        raise argparse.ArgumentTypeError(str(error) if isinstance(error, resolutions.BadWidth) else
-                                         "the width must be a number") from error
+def _do_install(path: Path, width: int) -> None:
+    install.install(path, width, log=lambda line: click.echo(f"  {line}"))
+    click.echo(f"\nDone: the game runs at {width}x{HEIGHT}. Start it as usual.")
+    click.echo("Keep the game's Menu Layout with the panel on the left: the other two don't work with the mod yet.")
+    click.echo("To change the resolution or remove the mod, run this program again.")
+    if sys.platform != "win32":
+        click.echo("\nOn Linux, the game runs through Proton and needs one more thing, once:")
+        click.echo("in Steam, right-click Tzar, Properties, General, and set Launch Options to:\n")
+        click.echo(f"    {LAUNCH_OPTIONS}\n")
+        click.echo("It tells Proton to use the mod's DirectDraw (cnc-ddraw) instead of its own.")
+
+
+def _do_uninstall(path: Path) -> None:
+    install.uninstall(path, log=lambda line: click.echo(f"  {line}"))
+    click.echo("\nDone: the game is back to how it was.")
+    if sys.platform != "win32":
+        click.echo("You can clear Tzar's Launch Options in Steam now.")
+
+
+def _interactive(path: Path, state: install.Status) -> None:
+    exe = state.exe
+    reverted = exe is not None and (exe.patched < exe.total or exe.width == 1024)
+    if state.installed and reverted:
+        click.echo("The mod is installed, but the game's files were put back, probably by a Steam update.\n")
+        picked = _menu("What now?", ["apply the mod again", "change the resolution and apply it",
+                                     "remove the mod", "nothing"])
+        if picked == 1:
+            _do_install(path, state.width or resolutions.DEFAULT_WIDTH)
+        elif picked == 2:
+            _do_install(path, _choose_width(state.width))
+        elif picked == 3:
+            _do_uninstall(path)
+        return
+    if state.installed:
+        picked = _menu("What now?", ["change the resolution", "remove the mod and put the original files back",
+                                     "nothing"], default=3)
+        if picked == 1:
+            click.echo()
+            _do_install(path, _choose_width(state.width))
+        elif picked == 2:
+            _do_uninstall(path)
+        return
+    click.echo("This makes the game run at a widescreen resolution, scaled to your screen. It changes a few of the")
+    click.echo(f"game's files and keeps the originals in {install.BACKUP_DIR}/, so running this program again")
+    click.echo("can change the resolution or remove the mod.\n")
+    width = _choose_width()
+    click.echo()
+    if click.confirm(f"Install the mod at {width}x{HEIGHT}?", default=True):
+        _do_install(path, width)
+
+
+@click.group(invoke_without_command=True, context_settings={"help_option_names": ["-h", "--help"]})
+@width_option
+@game_dir_option
+@yes_option
+@click.version_option(__version__, prog_name="tzar-widescreen")
+@click.pass_context
+def cli(ctx: click.Context, width: int | None, game_dir: Path | None, yes: bool) -> None:
+    """Widescreen mod for Tzar: The Burden of the Crown.
+
+    With no command, it finds the game and asks what to do. --width alone installs at that width.
+    """
+    ctx.obj = {"game_dir": game_dir, "yes": yes}
+    if ctx.invoked_subcommand is not None:
+        return
+    if width is not None:
+        ctx.invoke(install_command, width=width, game_dir=game_dir, yes=yes)
+        return
+    _interactive(*_open_game(game_dir))
+
+
+@cli.command("install")
+@width_option
+@game_dir_option
+@yes_option
+@click.pass_context
+def install_command(ctx: click.Context, width: int | None, game_dir: Path | None, yes: bool) -> None:
+    """Install the mod, or change the resolution of an installed one."""
+    yes = yes or ctx.obj["yes"]
+    path, state = _open_game(game_dir or ctx.obj["game_dir"])
+    if width is None:
+        width = _default_width() if yes else _choose_width(state.width)
+    if yes or click.confirm(f"Install the mod at {width}x{HEIGHT}?", default=True):
+        _do_install(path, width)
+
+
+@cli.command("uninstall")
+@game_dir_option
+@yes_option
+@click.pass_context
+def uninstall_command(ctx: click.Context, game_dir: Path | None, yes: bool) -> None:
+    """Remove the mod and put the game's original files back."""
+    path, _ = _open_game(game_dir or ctx.obj["game_dir"])
+    if yes or ctx.obj["yes"] or click.confirm("Remove the mod?", default=True):
+        _do_uninstall(path)
+
+
+@cli.command("status")
+@game_dir_option
+@click.pass_context
+def status_command(ctx: click.Context, game_dir: Path | None) -> None:
+    """Show what's installed, without changing anything."""
+    _, state = _open_game(game_dir or ctx.obj["game_dir"])
+    if state.exe:
+        click.echo(f"Tzar_.exe: {state.exe.width}x{state.exe.height}, "
+                   f"{state.exe.patched} of {state.exe.total} fixes applied")
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        prog="tzar-widescreen",
-        description="Widescreen mod for Tzar: The Burden of the Crown. With no command, it asks what to do.")
-    parser.add_argument("command", nargs="?", choices=["install", "uninstall", "status"],
-                        help="install also changes the resolution of an installed mod")
-    parser.add_argument("--width", type=_width,
-                        help=f"the game's width in pixels, {resolutions.MIN_WIDTH} to {resolutions.MAX_WIDTH} "
-                             f"(the height stays {resolutions.HEIGHT}). Default: your screen's shape")
-    parser.add_argument("--game-dir", type=Path, help="the Tzar folder, if it isn't found on its own")
-    parser.add_argument("--yes", "-y", action="store_true", help="don't ask anything")
-    parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
-    args = parser.parse_args()
-    if args.width is not None and args.command is None:
-        args.command = "install"
     # Started by double-click on Windows: keep the window open at the end so the result can be read.
     pause = sys.platform == "win32" and len(sys.argv) == 1
     try:
-        code = run(args)
-    except install.InstallError as error:
-        print(f"\nCan't continue: {error}")
+        code = cli.main(prog_name="tzar-widescreen", standalone_mode=False)
+        code = code if isinstance(code, int) else 0
+    except click.exceptions.Abort:
+        click.echo("\nStopped.")
         code = 1
-    except KeyboardInterrupt:
-        print("\nStopped.")
+    except click.ClickException as error:
+        error.show()
+        code = error.exit_code
+    except install.InstallError as error:
+        click.echo(f"\nCan't continue: {error}")
         code = 1
     if pause:
-        input("\nPress Enter to close this window.")
+        click.pause("\nPress any key to close this window.")
     sys.exit(code)

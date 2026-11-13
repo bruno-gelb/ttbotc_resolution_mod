@@ -22,7 +22,8 @@ What it takes today, for any width from 1032 to 2198 at 768 px high, with the le
 
 `install.py` puts it together: it backs up the original files to `tzar-widescreen-backup/` in the game folder, with a
 manifest, and puts them back on uninstall. `resolutions.py` holds the width limits and presets and detects the
-screen's shape, `game.py` finds the game in the Steam libraries, and `cli.py` is the `tzar-widescreen` program.
+screen's shape, `game.py` finds the game in the Steam libraries, and `cli.py` is the `tzar-widescreen` program,
+built with [Click](https://click.palletsprojects.com/en/stable/).
 
 All the details, with addresses: [docs/findings.md](docs/findings.md).
 

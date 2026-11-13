@@ -2,6 +2,12 @@
 
 Versions follow [semantic versioning](https://semver.org). Each version's section here becomes its release notes.
 
+## Unreleased
+
+- The program's command line is rebuilt with [Click](https://click.palletsprojects.com/en/stable/): `install`,
+  `uninstall` and `status` each have their own `--help`, and wrong options get clearer messages. Everything that
+  worked before still works ([#14](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/14)).
+
 ## 0.2.0 (2026-11-13)
 
 - Choose the resolution: the installer detects your screen and offers the width with the same shape, presets for
