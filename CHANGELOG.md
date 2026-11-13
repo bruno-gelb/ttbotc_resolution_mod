@@ -2,12 +2,14 @@
 
 Versions follow [semantic versioning](https://semver.org). Each version's section here becomes its release notes.
 
-## Unreleased
+## 0.5.0 (2026-11-13)
 
 - The GOG version works too. It's the same game as Steam's, with its program named `Tzar.exe` instead of
   `Tzar_.exe`. On Linux the program finds a GOG copy installed through Heroic and tells Heroic's Wine to use
   cnc-ddraw, the way it does for Steam; on Windows it finds GOG's installs too, untested so far
   ([#9](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/9)).
+- The install and uninstall steps have a page for each system and store, Windows or Linux, Steam or GOG, linked
+  from the README.
 
 ## 0.4.0 (2026-11-13)
 
