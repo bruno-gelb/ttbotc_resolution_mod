@@ -2,6 +2,13 @@
 
 Versions follow [semantic versioning](https://semver.org). Each version's section here becomes its release notes.
 
+## Unreleased
+
+- The licenses of everything the programs bundle now go along with them, as those licenses ask. cnc-ddraw's goes
+  into the game folder as `ddraw-LICENSE.txt`, next to `ddraw.dll`. `--licenses` shows the licenses of Python, Click,
+  pefile, PyInstaller and the rest, and each release has them in a `THIRD-PARTY-NOTICES.txt` file next to each
+  program. Two of cnc-ddraw's shaders, xBRZ, are no longer included: they're GPL, and the mod doesn't use them.
+
 ## 0.6.0 (2026-11-13)
 
 - The game's music plays on Linux. It's MIDI, which Windows plays with a synthesizer of its own, and Wine has none, so

@@ -45,7 +45,11 @@ jobs:
         run: uv run --locked python src/tools/build_release.py
       - name: Smoke test
         shell: bash
-        run: ./dist/tzar-widescreen-* --version
+        env:
+          PROGRAM: ${{ runner.os == 'Windows' && './dist/tzar-widescreen-windows.exe' || './dist/tzar-widescreen-linux' }}
+        run: |
+          "$PROGRAM" --version
+          "$PROGRAM" --licenses | grep -q "cnc-ddraw"
       - uses: actions/upload-artifact@v7.0.2
         with:
           name: tzar-widescreen-${{ matrix.os }}

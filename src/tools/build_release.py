@@ -104,6 +104,57 @@ def add_package_note(exe: Path, v: str, tmp: Path) -> None:
         sys.exit(f"{exe.name} has no package note with {expected}:\n{notes}")
 
 
+def _license_files(distribution: str) -> list[Path]:
+    """A Python package's license files, from its installed metadata."""
+    from importlib.metadata import distribution as dist
+
+    d = dist(distribution)
+    files = [Path(str(d.locate_file(f))) for f in d.files or []
+             if any(word in f.name.upper() for word in ("LICENSE", "COPYING"))]
+    if not files:
+        sys.exit(f"no license file found for {distribution}")
+    return files
+
+
+def _python_license() -> Path:
+    for path in [Path(sys.base_prefix) / "LICENSE.txt",
+                 Path(sys.base_prefix) / "lib" / f"python{sys.version_info.major}.{sys.version_info.minor}" / "LICENSE.txt"]:
+        if path.is_file():
+            return path
+    sys.exit(f"Python's license wasn't found under {sys.base_prefix}")
+
+
+def notices(platform: str) -> str:
+    """THIRD-PARTY-NOTICES.txt: the licenses of everything the release program bundles, as their licenses ask."""
+    def section(title: str, *paths: Path) -> str:
+        texts = "\n\n".join(p.read_text(encoding="utf-8", errors="replace").strip() for p in paths)
+        return f"{'=' * 79}\n{title}\n{'=' * 79}\n\n{texts}\n\n"
+
+    shaders = PACKAGE / "cnc_ddraw" / "Shaders"
+    parts = [
+        f"tzar-widescreen ({PRODUCT}), {URL}\n"
+        "Copyright (c) 2026 Bruno Gelb, under the MIT License (below). This program bundles the software listed\n"
+        "after it, each under its own license.\n\n",
+        section("ttbotc_resolution_mod: MIT License", ROOT / "LICENSE"),
+        section("cnc-ddraw, https://github.com/FunkyFr3sh/cnc-ddraw (ddraw.dll, ddraw.ini). Its shaders, in Shaders/,\n"
+                "come from https://github.com/libretro/glsl-shaders; each one carries its authors' copyright and\n"
+                "license in its header (MIT or public domain)", PACKAGE / "cnc_ddraw" / "ddraw-LICENSE.txt"),
+    ]
+    if not any(shaders.rglob("*.glsl*")):
+        sys.exit("cnc-ddraw's shaders are missing")
+    if platform == "linux":
+        parts.append(section("TZMUS.dll and TZMUS.sf2, the music synthesizer (Linux)",
+                             PACKAGE / "music" / "TZMUS-LICENSES.txt"))
+    parts += [
+        section("Click, https://palletsprojects.com/p/click/", *_license_files("click")),
+        section("pefile, https://github.com/erocarrera/pefile", *_license_files("pefile")),
+        section(f"Python {sys.version.split()[0]}, https://www.python.org/", _python_license()),
+        section("PyInstaller's bootloader, https://pyinstaller.org/ (GPL-2.0-or-later with the Bootloader\n"
+                "Exception, which allows this use)", *_license_files("pyinstaller")),
+    ]
+    return "".join(parts)
+
+
 def main() -> None:
     if not (PACKAGE / "cnc_ddraw" / "ddraw.dll").is_file():
         sys.exit("cnc-ddraw's files are missing: run src/tools/fetch_cnc_ddraw.py first")
@@ -119,6 +170,9 @@ def main() -> None:
     # The program shows its version when it starts, and in its metadata (above).
     name = f"tzar-widescreen-{platform}"
     out = ROOT / "dist" / (name + (".exe" if platform == "windows" else ""))
+    # Inside the program (shown by --licenses) and next to it on the releases page.
+    notices_file = PACKAGE / "THIRD-PARTY-NOTICES.txt"
+    notices_file.write_text(notices(platform), encoding="utf-8")
     with tempfile.TemporaryDirectory() as tmp:
         extra = []
         if platform == "windows":
@@ -130,6 +184,7 @@ def main() -> None:
             "--onefile", "--console", "--clean", "--noconfirm",
             "--name", name,
             "--add-data", f"{PACKAGE / 'cnc_ddraw'}{os.pathsep}tzar_widescreen/cnc_ddraw",
+            "--add-data", f"{notices_file}{os.pathsep}tzar_widescreen",
             *music,
             "--copy-metadata", "ttbotc-resolution-mod",
             *extra,
@@ -142,6 +197,7 @@ def main() -> None:
             check_version_info(out, version_strings(v, out.name))
         else:
             add_package_note(out, v, Path(tmp))
+    shutil.copy2(notices_file, ROOT / "dist" / f"{name}-THIRD-PARTY-NOTICES.txt")
     print(f"built {out} ({out.stat().st_size // 1024} KB)")
     if "GITHUB_OUTPUT" in os.environ:
         with open(os.environ["GITHUB_OUTPUT"], "a") as f:

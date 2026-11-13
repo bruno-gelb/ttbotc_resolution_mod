@@ -21,6 +21,20 @@ def test_version():
     assert result.exit_code == 0 and __version__ in result.output
 
 
+def test_licenses_from_a_source_tree(tmp_path, monkeypatch):
+    monkeypatch.setattr(cli, "NOTICES", tmp_path / "THIRD-PARTY-NOTICES.txt")  # a build may have left a real one
+    result = run("--licenses")
+    assert result.exit_code == 0 and "isn't a release build" in result.output
+
+
+def test_licenses_in_a_release_build(tmp_path, monkeypatch):
+    notices = tmp_path / "THIRD-PARTY-NOTICES.txt"
+    notices.write_text("cnc-ddraw: MIT License", encoding="utf-8")
+    monkeypatch.setattr(cli, "NOTICES", notices)
+    result = run("--licenses")
+    assert result.exit_code == 0 and "cnc-ddraw: MIT License" in result.output
+
+
 def test_help_lists_the_commands():
     result = run("--help")
     assert result.exit_code == 0

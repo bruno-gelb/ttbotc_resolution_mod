@@ -23,6 +23,19 @@ game_dir_option = click.option(
     "--game-dir", type=click.Path(exists=True, file_okay=False, path_type=Path),
     help="The Tzar folder, if it isn't found on its own.")
 yes_option = click.option("--yes", "-y", is_flag=True, help="Don't ask anything.")
+# Written by src/tools/build_release.py and bundled with the release programs: the licenses of what's inside them.
+NOTICES = Path(__file__).parent / "THIRD-PARTY-NOTICES.txt"
+
+
+def _show_licenses(ctx: click.Context, _param, value: bool) -> None:
+    if not value or ctx.resilient_parsing:
+        return
+    if NOTICES.is_file():
+        click.echo(NOTICES.read_text(encoding="utf-8"))
+    else:
+        click.echo("This copy isn't a release build, so it has no third-party notices: see the README's License "
+                   "section.")
+    ctx.exit()
 
 
 def _menu(title: str, options: list[str], default: int = 1) -> int:
@@ -164,6 +177,8 @@ def _interactive(path: Path, state: install.Status) -> None:
 @game_dir_option
 @yes_option
 @click.version_option(__version__, prog_name="tzar-widescreen")
+@click.option("--licenses", is_flag=True, expose_value=False, is_eager=True, callback=_show_licenses,
+              help="Show the licenses of the mod and of the software bundled with it, and exit.")
 @click.pass_context
 def cli(ctx: click.Context, width: int | None, game_dir: Path | None, yes: bool) -> None:
     """Widescreen mod for Tzar: The Burden of the Crown.

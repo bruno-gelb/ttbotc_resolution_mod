@@ -17,3 +17,5 @@ dist/
 
 # The music DLL and its trimmed soundfont, built by src/tools/fetch_soundfont.py and build_music.py
 src/tzar_widescreen/music/
+# The release programs' third-party notices, written by src/tools/build_release.py
+src/tzar_widescreen/THIRD-PARTY-NOTICES.txt
