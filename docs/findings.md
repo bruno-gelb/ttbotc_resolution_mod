@@ -49,6 +49,12 @@ Static analysis of [Tzar: The Burden of the Crown][tzar] (Steam version 1.10, by
   cnc-ddraw's `inject_resolution=` option, which adds a custom mode to the list and scales it to the monitor.
 - The primary surface is created with a back buffer (`0x50f286`), sized by the display mode, so no fixed-size screen
   buffer was found. The 7.7 MB `.data` section still deserves a look for static buffers sized for 1024x768.
+- Under Proton, Wine prefers its own builtin `ddraw.dll` to the one in the game folder. The first tests used the
+  launch option `WINEDLLOVERRIDES="ddraw=n,b"`. Now the installer sets the same override in the game's
+  Proton prefix instead (#26): `steamapps/compatdata/825730/pfx/user.reg`, key
+  `Software\\Wine\\AppDefaults\\Tzar_.exe\\DllOverrides`, value `"ddraw"="native,builtin"`, the section Proton
+  uses for its own per-game overrides. Tested in the game without the launch option (2026-11-13). The prefix exists
+  only after the game's first launch, and Wine writes `user.reg` back when the game exits, so it must be closed.
 
 ## Startup config check ("Invalid TZAR configuration")
 

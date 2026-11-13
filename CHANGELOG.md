@@ -2,6 +2,13 @@
 
 Versions follow [semantic versioning](https://semver.org). Each version's section here becomes its release notes.
 
+## Unreleased
+
+- Linux: no more Steam launch options. The installer tells Proton to use cnc-ddraw in Tzar's own Proton settings, and
+  removing the mod takes that back. Start the game once before installing, so that Proton sets it up. If you added
+  `WINEDLLOVERRIDES="ddraw=n,b"` to Tzar's Launch Options for an earlier version, run the program again to apply
+  the new setting, then you can clear them ([#26](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/26)).
+
 ## 0.2.1 (2026-11-13)
 
 - The program's command line is rebuilt with [Click](https://click.palletsprojects.com/en/stable/): `install`,

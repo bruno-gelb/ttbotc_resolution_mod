@@ -109,6 +109,25 @@ def test_after_a_steam_update_it_offers_to_apply_again(game):
     assert install.status(game).exe.width == 1368
 
 
+def test_linux_asks_to_start_the_game_once_then_finishes(game, prefix):
+    reg = prefix.read_bytes()
+    prefix.unlink()
+    result = run("install", "--width", 1368, "--game-dir", game, "--yes")
+    assert result.exit_code == 0
+    assert "Start Tzar once from Steam" in result.output
+    prefix.write_bytes(reg)
+    result = run("--game-dir", game, input="1\n")
+    assert "doesn't have its setting yet" in result.output
+    assert "Done" in result.output
+    assert not install.status(game).proton_missing
+
+
+def test_linux_install_says_done_with_a_prefix(game, prefix):
+    result = run("install", "--width", 1368, "--game-dir", game, "--yes")
+    assert "Done: the game runs at 1368x768" in result.output
+    assert "Launch Options" not in result.output
+
+
 def test_main_reports_problems_and_exits_with_1(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(sys, "argv", ["tzar-widescreen", "status", "--game-dir", str(tmp_path)])
     with pytest.raises(SystemExit) as exit_:

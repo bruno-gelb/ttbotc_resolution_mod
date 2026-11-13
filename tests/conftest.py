@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from tzar_widescreen import cnc_ddraw, exe_patch, install, resolutions
+from tzar_widescreen import cnc_ddraw, exe_patch, install, proton, resolutions
 
 IMAGE_BASE = 0x400000
 TEXT_RVA = 0x1000
@@ -106,10 +106,43 @@ def screen(monkeypatch):
     monkeypatch.setattr(resolutions, "detect_screen", lambda: (3440, 1440))
 
 
+@pytest.fixture(autouse=True)
+def no_proton(monkeypatch):
+    """Windows behaviour by default, whatever runs the tests: the proton fixture turns Proton on."""
+    monkeypatch.setattr(proton, "ENABLED", False)
+    monkeypatch.setattr(proton, "game_running", lambda: False)
+
+
+# The tail of a real user.reg: Proton's own per-game overrides look like this.
+USER_REG = """WINE REGISTRY Version 2
+;; All keys relative to REGISTRY\\\\User\\\\S-1-5-21-0-0-1000-1000
+
+#arch=win64
+
+[Software\\\\Wine\\\\AppDefaults\\\\Avengers.exe\\\\DllOverrides] 1793987668
+#time=1dd6e17de46e4a0
+"atiadlxx"="builtin"
+
+[Volatile Environment] 1793987668
+#time=1dd6e17de47b7c4
+"USERPROFILE"="C:\\\\users\\\\steamuser"
+"""
+
+
+@pytest.fixture
+def prefix(game, monkeypatch) -> Path:
+    """Linux: Tzar's Proton prefix next to the game folder, as Steam lays it out. Returns its user.reg."""
+    monkeypatch.setattr(proton, "ENABLED", True)
+    reg = game.parent.parent / "compatdata" / proton.APP_ID / "pfx" / "user.reg"
+    reg.parent.mkdir(parents=True)
+    reg.write_bytes(USER_REG.encode("latin-1"))
+    return reg
+
+
 @pytest.fixture
 def game(tmp_path) -> Path:
-    """A synthetic, unmodded game folder."""
-    folder = tmp_path / "Tzar"
+    """A synthetic, unmodded game folder, in a Steam library's steamapps/common."""
+    folder = tmp_path / "steamapps" / "common" / "Tzar"
     (folder / "DATA").mkdir(parents=True)
     (folder / "IMAGES/SCREENS/S_VIEW").mkdir(parents=True)
     (folder / install.EXE).write_bytes(make_exe())

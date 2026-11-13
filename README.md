@@ -11,9 +11,9 @@ as 21:9 for an ultrawide monitor, so the game shows more of the map instead of s
 
 You need [Tzar: The Burden of the Crown][tzar] from Steam (game version 1.10), installed. Other versions, like GOG's
 or the original CD, aren't supported yet ([#9](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/9)).
+On Linux, start the game from Steam once before installing the mod, so that Proton sets it up.
 
-1. Download the program for your system from the [latest release](https://github.com/bruno-gelb/ttbotc_resolution_mod/releases/latest):
-   `tzar-widescreen-...-windows.exe` for Windows, `tzar-widescreen-...-linux` for Linux.
+1. Download the program for your system from the [latest release](https://github.com/bruno-gelb/ttbotc_resolution_mod/releases/latest).
 2. Run it.
    - **Windows:** double-click it. Windows may say it protected your PC, because the program isn't signed: click
      **More info**, then **Run anyway**.
@@ -30,14 +30,7 @@ or the original CD, aren't supported yet ([#9](https://github.com/bruno-gelb/ttb
 
    The game's picture is scaled to fill your screen and keeps its shape. Press Enter to take the first choice, then
    Enter again to install.
-4. **Linux only, once:** in Steam, right-click Tzar, then Properties, General, and put this in Launch Options:
-
-   ```
-   WINEDLLOVERRIDES="ddraw=n,b" %command%
-   ```
-
-5. Play from Steam as usual. Keep the game's layout with the panel on the left: the other two don't work with the
-   mod yet ([#5](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/5)).
+4. Play from Steam as usual.
 
 If it can't find the game, copy the program into the game's folder and run it from there.
 
@@ -66,7 +59,8 @@ mod.
    from the game's own picture.
 4. **[cnc-ddraw](https://github.com/FunkyFr3sh/cnc-ddraw)**, a popular open-source replacement for DirectDraw, the
    graphics library old Windows games use. No monitor has a mode like 1832x768, so cnc-ddraw offers one to the game and
-   scales the picture up to fill your screen.
+   scales the picture up to fill your screen. On Linux, the program also tells Proton, in the game's own Proton
+   settings, to use cnc-ddraw instead of its built-in DirectDraw.
 
 The details, down to the addresses in the game's code, are in [docs/findings.md](docs/findings.md).
 
