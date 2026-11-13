@@ -1,4 +1,4 @@
-# Compared to other projects
+# Why not existing projects
 
 Other ways players make [Tzar: The Burden of the Crown][tzar] work on modern PCs, compared with this mod. Most of them
 come from the Steam thread [DONT BUY][thread], PCGamingWiki's [page on the game][pcgw] and the GOG forum. Checked
