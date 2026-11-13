@@ -1,7 +1,8 @@
 """Synthetic game files for the tests: the game's own files can't go into the repository.
 
 The exe is a minimal 32-bit PE laid out like Tzar_.exe (file offset = address - 0x400000) with the original bytes at
-every patch address. The frame bitmap, tzar.ini and LAYOUT.INI are small stand-ins with the same structure.
+every patch address. The frame bitmap, tzar.ini, LAYOUT.INI and STRINGS.INI are small stand-ins with the same
+structure.
 """
 
 import hashlib
@@ -28,6 +29,10 @@ LAYOUT_INI = (
     "[LAYOUT1024H]\r\nlayout = 1\r\nview = 0,30,1024,584\r\n\r\n"
     "[LAYOUT1024L]\r\nlayout = 2\r\nimage = screen 1024 left.bmp\r\nview = 150,30,874,738\r\n"
     "minimap = 4, 31, 128, 128\r\n"
+)
+STRINGS_INI = (
+    "[general]\r\ndefgamename = Default\r\ngamename = The TZAR game\r\nversion = Version\r\n"
+    "net_title = TZAR NETWORK\r\n\r\n[options]\r\ntitle = Options\r\n"
 )
 DDRAW_INI = (
     "; cnc-ddraw\r\n[ddraw]\r\nwidth=0\r\nheight=0\r\nfullscreen=false\r\nmaintas=false\r\nrenderer=auto\r\n"
@@ -145,8 +150,10 @@ def game(tmp_path) -> Path:
     folder = tmp_path / "steamapps" / "common" / "Tzar"
     (folder / "DATA").mkdir(parents=True)
     (folder / "IMAGES/SCREENS/S_VIEW").mkdir(parents=True)
+    (folder / "LOCAL").mkdir()
     (folder / install.EXE).write_bytes(make_exe())
     (folder / install.TZAR_INI).write_bytes(TZAR_INI.encode("latin-1"))
     (folder / install.LAYOUT_INI).write_bytes(LAYOUT_INI.encode("latin-1"))
     (folder / install.FRAME).write_bytes(make_frame())
+    (folder / install.STRINGS_INI).write_bytes(STRINGS_INI.encode("latin-1"))
     return folder

@@ -5,6 +5,7 @@ manifest of what was done, so uninstalling restores the game exactly. Installing
 reverted the exe in an update) works from those backups.
 """
 
+import re
 import shutil
 import time
 from dataclasses import dataclass
@@ -23,6 +24,13 @@ TZAR_INI = "tzar.ini"
 LAYOUT_INI = "DATA/LAYOUT.INI"
 FRAME = "IMAGES/SCREENS/S_VIEW/SCREEN 1024 LEFT.BMP"
 BACKED_UP = [EXE, LAYOUT_INI, FRAME]
+# The main menu shows "<[general] version> <the game's version>" in its bottom-right corner, "Version 1.10, 2/03/2002":
+# the mod puts its own name and version in front. No "|" in it: the game reads "text| hint" and shows only the text.
+# Unlike the files above, it's optional, since a copy of the game could lack it. Versions before 0.4.0 didn't change
+# it, so their backups don't have it: then it's still the original.
+STRINGS_INI = "LOCAL/STRINGS.INI"
+MENU_LABEL = "ttbotc_resolution_mod {version}. game {original}"
+LABELLED = re.compile(r"ttbotc_resolution_mod \S+\. game (.*)")
 # tzar.ini also holds the player's settings, so only these keys are changed, and put back on uninstall.
 TZAR_INI_KEYS = [
     ("DEFAULTS", "LAYOUT", LAYOUT),
@@ -106,6 +114,28 @@ def _set_proton_override(game_dir: Path, manifest: Manifest, log) -> bool:
     return True
 
 
+def _label_main_menu(game_dir: Path, backup: Path, log) -> None:
+    path = resolve(game_dir, STRINGS_INI)
+    if not path.is_file():
+        return
+    saved = backup / STRINGS_INI
+    if not saved.is_file():
+        text = ini.read(path)
+        current = ini.get_key(text, "general", "version")
+        label = LABELLED.fullmatch(current or "")
+        if label:  # left over from a mod version that didn't put it back: keep what the game had
+            text = ini.set_key(text, "general", "version", label.group(1))
+        saved.parent.mkdir(parents=True, exist_ok=True)
+        saved.write_bytes(text.encode("latin-1"))
+    text = ini.read(saved)
+    original = ini.get_key(text, "general", "version")
+    if original is None:
+        return
+    log("Adding the mod's version to the main menu")
+    text = ini.set_key(text, "general", "version", MENU_LABEL.format(version=__version__, original=original))
+    _write(path, text.encode("latin-1"))
+
+
 def install(game_dir: Path, width: int = resolutions.DEFAULT_WIDTH, log=print) -> bool:
     """Install the mod, or change its width. On Linux, False if Proton still needs the game to run once first."""
     resolutions.check(width)
@@ -160,6 +190,7 @@ def install(game_dir: Path, width: int = resolutions.DEFAULT_WIDTH, log=print) -
     for section, key, value in TZAR_INI_KEYS:
         text = ini.set_key(text, section, key, value)
     _write(paths[TZAR_INI], text.encode("latin-1"))
+    _label_main_menu(game_dir, backup, log)
     log("Installing cnc-ddraw")
     cnc_ddraw.install(game_dir, width, HEIGHT)
     ready = _set_proton_override(game_dir, manifest, log) if proton.ENABLED else True
@@ -179,6 +210,9 @@ def uninstall(game_dir: Path, log=print) -> None:
     for rel in BACKED_UP:
         log(f"Restoring {rel}")
         _write(resolve(game_dir, rel), (backup / rel).read_bytes())
+    if (backup / STRINGS_INI).is_file():
+        log(f"Restoring {STRINGS_INI}")
+        _write(resolve(game_dir, STRINGS_INI), (backup / STRINGS_INI).read_bytes())
     tzar_ini = resolve(game_dir, TZAR_INI)
     if tzar_ini.is_file():
         log(f"Restoring the settings the mod changed in {TZAR_INI}")

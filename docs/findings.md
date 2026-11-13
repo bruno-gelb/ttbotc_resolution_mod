@@ -91,6 +91,23 @@ DirectDraw device.
 `Setup.exe`, the configuration program, doesn't start under Proton: it needs `MFC42.DLL`, which the prefix doesn't
 have.
 
+## Main menu version line
+
+The main menu (`mainscr`) shows the game's version in its bottom-right corner. Its constructor builds the text at
+`0x4d1834`: `sprintf(this + 0x60, "%s %s", <[general] version from LOCAL/STRINGS.INI>, <0x4ef450>)`, where
+`0x4ef450` formats `"%d.%02d, 2/03/2002"`, so the line reads `Version 1.10, 2/03/2002`. The draw method at
+`0x4d1960` measures the text and draws it twice for a shadow, right-aligned 29 px from the menu's right edge, at
+y = 581 and 580 of the 800x600 menu. So on a wider screen it sits in the menu picture's corner, not the screen's.
+
+The object is 0x168 bytes (allocated at `0x439150`) and nothing in `mainscr` uses it past `0x60`, so the buffer has
+about 260 bytes, with no length check: keep the text well under that. `[general] version` is read nowhere else, so
+changing it only changes this line; the multiplayer version checks use the numbers. The mod puts
+`ttbotc_resolution_mod <version>. game ` in front of it (0.4.0).
+
+`|` can't go in the text: `STRINGS.INI` uses it to split a label from its hint (`single = SINGLE PLAYER| Single player
+game`), and the game shows only what comes before it. Tested 2026-11-13: with `| game ` in front, the menu read
+`ttbotc_resolution_mod 0.3.0 1.10, 2/03/2002`.
+
 ## Plan for a first test
 
 Keep the left-panel layout and change only the width, so nothing vertical moves:

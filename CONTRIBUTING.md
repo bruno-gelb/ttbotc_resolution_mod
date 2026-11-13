@@ -17,6 +17,8 @@ What it takes today, for any width from 1032 to 2198 at 768 px high, with the le
   which only covered 1024 px, and the startup check that refused to run when the sound devices changed.
 - **`DATA/LAYOUT.INI`** (`install.py`): a wider map view in `[LAYOUT1024L]`.
 - **The in-game frame bitmap** (`frame.py`), widened from the game's own.
+- **`LOCAL/STRINGS.INI`** (`install.py`): the mod's name and version in front of `[general] version`, which the
+  main menu shows in its bottom-right corner.
 - **[cnc-ddraw](https://github.com/FunkyFr3sh/cnc-ddraw)** (`cnc_ddraw.py`), which adds the display mode the game
   asks for and scales it to the monitor. Its files are bundled into the release programs.
 

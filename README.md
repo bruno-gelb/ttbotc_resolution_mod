@@ -48,7 +48,7 @@ doesn't know it. Click **More info**, then **Run anyway**.
 
 ## How it works
 
-The game was made for screens up to 1024x768. The mod changes four things, and nothing else: the game's rules, AI
+The game was made for screens up to 1024x768. The mod changes five things, and nothing else: the game's rules, AI
 and saves stay exactly as they were. The program keeps the original files and puts them back when you remove the
 mod.
 
@@ -66,6 +66,9 @@ mod.
    graphics library old Windows games use. No monitor has a mode like 1832x768, so cnc-ddraw offers one to the game and
    scales the picture up to fill your screen. On Linux, the program also tells Proton, in the game's own Proton
    settings, to use cnc-ddraw instead of its built-in DirectDraw.
+5. **The version line on the main menu**, in its bottom-right corner, gets the mod's name and version in front:
+   `ttbotc_resolution_mod 0.4.0. game Version 1.10, 2/03/2002`. The game takes the word "Version" from its text
+   file `LOCAL/STRINGS.INI`, so that one line is all that changes.
 
 The details, down to the addresses in the game's code, are in [docs/findings.md](docs/findings.md).
 
