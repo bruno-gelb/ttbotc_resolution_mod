@@ -23,7 +23,13 @@ or the original CD, aren't supported yet ([#9](https://github.com/bruno-gelb/ttb
      chmod +x tzar-widescreen-*-linux && ./tzar-widescreen-*-linux
      ```
 
-3. It finds the game, tells you what it's going to change and asks first. Press Enter to install.
+3. It finds the game and asks which resolution you want. The height is always 768; the width sets the shape:
+   - **matches your screen**, the first choice: it detects your screen and picks the width with the same shape;
+   - **1232x768** for 16:10 screens, **1368x768** for 16:9, **1832x768** for 21:9 ultrawides;
+   - or any width from 1032 to 2198.
+
+   The game's picture is scaled to fill your screen and keeps its shape. Press Enter to take the first choice, then
+   Enter again to install.
 4. **Linux only, once:** in Steam, right-click Tzar, then Properties, General, and put this in Launch Options:
 
    ```
@@ -35,8 +41,12 @@ or the original CD, aren't supported yet ([#9](https://github.com/bruno-gelb/ttb
 
 If it can't find the game, copy the program into the game's folder and run it from there.
 
-**To remove the mod**, run the program again: it sees the mod and offers to put the game's original files back. After
-a Steam update or "Verify integrity of game files", run it again to apply the mod again.
+**To change the resolution or remove the mod**, run the program again: it sees the mod and asks what to do. Removing
+it puts the game's original files back. After a Steam update or "Verify integrity of game files", run it again to
+apply the mod again.
+
+From a terminal, `--width` skips the question, for example `tzar-widescreen-...-linux --width 1368`; `--help` lists
+the rest.
 
 ## How it works
 
@@ -44,7 +54,7 @@ The game was made for screens up to 1024x768. The mod changes four things, and n
 and saves stay exactly as they were. The program keeps the original files and puts them back when you remove the
 mod.
 
-1. **14 bytes in the game's program** (`Tzar_.exe`). Four make the game's 1024x768 mode use 1832x768 instead.
+1. **14 bytes in the game's program** (`Tzar_.exe`). Four make the game's 1024x768 mode use your width instead.
    Eight fix a limit in how the game redraws the map: to save work, it only redraws the parts of the screen that
    changed, and its record of those parts only reached 1024 pixels across. Past that point nothing was ever redrawn,
    and the mouse cursor left a trail. Now each entry in that record covers twice the width, so it reaches 2048
@@ -55,7 +65,7 @@ mod.
 3. **The frame around the map**, a picture the game draws under the map and the panels, is made wider to match,
    from the game's own picture.
 4. **[cnc-ddraw](https://github.com/FunkyFr3sh/cnc-ddraw)**, a popular open-source replacement for DirectDraw, the
-   graphics library old Windows games use. No monitor has a 1832x768 mode, so cnc-ddraw offers one to the game and
+   graphics library old Windows games use. No monitor has a mode like 1832x768, so cnc-ddraw offers one to the game and
    scales the picture up to fill your screen.
 
 The details, down to the addresses in the game's code, are in [docs/findings.md](docs/findings.md).

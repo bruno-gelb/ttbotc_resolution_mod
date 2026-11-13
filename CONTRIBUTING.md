@@ -10,18 +10,19 @@ original screen sizes (800x600 or 1024x768). The target is the screen's shape, n
 screen, a 1720x720 game picture scaled up 2x keeps the sprites a sensible size, where native 3440x1440 would make them
 tiny.
 
-What it takes today, for 1832x768 with the left panel. The code is in `src/tzar_widescreen/`:
+What it takes today, for any width from 1032 to 2198 at 768 px high, with the left panel. The code is in
+`src/tzar_widescreen/`:
 
 - **The exe** (`exe_patch.py`): the screen size the game uses for its "1024" layouts, the map view's redraw tracking,
   which only covered 1024 px, and the startup check that refused to run when the sound devices changed.
 - **`DATA/LAYOUT.INI`** (`install.py`): a wider map view in `[LAYOUT1024L]`.
 - **The in-game frame bitmap** (`frame.py`), widened from the game's own.
-- **[cnc-ddraw](https://github.com/FunkyFr3sh/cnc-ddraw)** (`cnc_ddraw.py`), which adds the 1832x768 display mode
-  the game asks for and scales it to the monitor. Its files are bundled into the release programs.
+- **[cnc-ddraw](https://github.com/FunkyFr3sh/cnc-ddraw)** (`cnc_ddraw.py`), which adds the display mode the game
+  asks for and scales it to the monitor. Its files are bundled into the release programs.
 
 `install.py` puts it together: it backs up the original files to `tzar-widescreen-backup/` in the game folder, with a
-manifest, and puts them back on uninstall. `game.py` finds the game in the Steam libraries, and `cli.py` is the
-`tzar-widescreen` program.
+manifest, and puts them back on uninstall. `resolutions.py` holds the width limits and presets and detects the
+screen's shape, `game.py` finds the game in the Steam libraries, and `cli.py` is the `tzar-widescreen` program.
 
 All the details, with addresses: [docs/findings.md](docs/findings.md).
 

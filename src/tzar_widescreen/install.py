@@ -10,12 +10,11 @@ import shutil
 from dataclasses import dataclass
 from pathlib import Path
 
-from tzar_widescreen import __version__, cnc_ddraw, exe_patch, frame, ini
+from tzar_widescreen import __version__, cnc_ddraw, exe_patch, frame, ini, resolutions
 from tzar_widescreen.game import resolve
 
-WIDTH, HEIGHT = 1832, 768
+HEIGHT = resolutions.HEIGHT
 LAYOUT = "LAYOUT1024L"
-VIEW = f"150,30,{WIDTH - 150},{HEIGHT - 30}"  # the map view, right of the 150 px panel and below the 30 px top bar
 
 BACKUP_DIR = "tzar-widescreen-backup"
 MANIFEST = "manifest.json"
@@ -40,6 +39,7 @@ class InstallError(Exception):
 class Status:
     installed: bool
     version: str | None
+    width: int | None  # what the mod was installed with
     exe: exe_patch.ExeState | None
     exe_error: str | None
 
@@ -62,7 +62,8 @@ def status(game_dir: Path) -> Status:
         error = None
     except (OSError, exe_patch.UnknownExe) as e:
         exe, error = None, str(e)
-    return Status(manifest is not None, manifest.get("version") if manifest else None, exe, error)
+    return Status(manifest is not None, manifest.get("version") if manifest else None,
+                  manifest.get("width") if manifest else None, exe, error)
 
 
 def _write(path: Path, data: bytes) -> None:
@@ -71,7 +72,13 @@ def _write(path: Path, data: bytes) -> None:
     tmp.replace(path)
 
 
-def install(game_dir: Path, log=print) -> None:
+def _view(width: int) -> str:
+    """The map view in LAYOUT.INI: right of the 150 px panel, below the 30 px top bar."""
+    return f"150,30,{width - 150},{HEIGHT - 30}"
+
+
+def install(game_dir: Path, width: int = resolutions.DEFAULT_WIDTH, log=print) -> None:
+    resolutions.check(width)
     if not cnc_ddraw.available():
         raise InstallError("cnc-ddraw's files are missing from this build of the mod")
     paths = {rel: resolve(game_dir, rel) for rel in [EXE, TZAR_INI, LAYOUT_INI, FRAME]}
@@ -111,21 +118,22 @@ def install(game_dir: Path, log=print) -> None:
                 manifest["moved_aside"].append(name)
 
     log(f"Patching {EXE}")
-    _write(paths[EXE], exe_patch.apply((backup / EXE).read_bytes(), WIDTH, HEIGHT))
+    _write(paths[EXE], exe_patch.apply((backup / EXE).read_bytes(), width, HEIGHT))
     log(f"Widening the map view in {LAYOUT_INI}")
-    layout = ini.set_key(ini.read(backup / LAYOUT_INI), LAYOUT, "view", VIEW)
+    layout = ini.set_key(ini.read(backup / LAYOUT_INI), LAYOUT, "view", _view(width))
     _write(paths[LAYOUT_INI], layout.encode("latin-1"))
     log("Widening the frame around the map")
-    _write(paths[FRAME], frame.widen((backup / FRAME).read_bytes(), WIDTH))
+    _write(paths[FRAME], frame.widen((backup / FRAME).read_bytes(), width))
     log(f"Updating {TZAR_INI}")
     text = ini.read(paths[TZAR_INI])
     for section, key, value in TZAR_INI_KEYS:
         text = ini.set_key(text, section, key, value)
     _write(paths[TZAR_INI], text.encode("latin-1"))
     log("Installing cnc-ddraw")
-    cnc_ddraw.install(game_dir, WIDTH, HEIGHT)
+    cnc_ddraw.install(game_dir, width, HEIGHT)
 
     manifest["version"] = __version__
+    manifest["width"] = width
     (backup / MANIFEST).write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 
 

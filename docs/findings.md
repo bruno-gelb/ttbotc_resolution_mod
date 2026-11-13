@@ -156,7 +156,9 @@ Fix (in `exe_patch.py`, 8 spots): each bit covers 32 px instead of 16, up to 204
 masks are only touched by these two functions, `0x4f3610` and `0x4f36a0` (both go through `0x4f99b0`), and two
 `rep stosd` clears. The map's own tile range is separate: `+0x1926`/`+0x1928`, the view size in 32 px tiles.
 
-Tested 2026-11-13: the map is drawn across the full 1832 px width, no cursor trail.
+Tested 2026-11-13: the map is drawn across the full 1832 px width, no cursor trail. Since 0.2.0 the width is a
+choice from 1032 to 2198 (the 150 px panel plus the 2048 px the redraw masks now reach); tested in the game at
+2198 (the limit: the map is drawn to the right edge) and 1368 (16:9).
 
 ## Open questions
 
