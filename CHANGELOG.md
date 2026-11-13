@@ -8,6 +8,10 @@ Versions follow [semantic versioning](https://semver.org). Each version's sectio
   removing the mod takes that back. Start the game once before installing, so that Proton sets it up. If you added
   `WINEDLLOVERRIDES="ddraw=n,b"` to Tzar's Launch Options for an earlier version, run the program again to apply
   the new setting, then you can clear them ([#26](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/26)).
+- Shorter install steps. The programs on the releases page are now named `tzar-widescreen-windows.exe` and
+  `tzar-widescreen-linux`, without the version, so the README links straight to the newest one, and on Linux one
+  line downloads and starts it. The program still shows its version when it starts
+  ([#28](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/28)).
 
 ## 0.2.1 (2026-11-13)
 
