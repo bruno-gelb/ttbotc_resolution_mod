@@ -211,5 +211,5 @@ choice from 1032 to 2198 (the 150 px panel plus the 2048 px the redraw masks now
 - Map scrolling limits at the right edge of the map with a wider view.
 - Mouse coordinates under cnc-ddraw's scaling (the Tzar preset sets `adjmouse=true`).
 
-[tzar]: https://store.steampowered.com/app/825730/
+[tzar]: https://en.wikipedia.org/wiki/Tzar:_The_Burden_of_the_Crown
 [haemimont]: https://www.haemimontgames.com/

@@ -25,4 +25,4 @@ back when you remove the mod.
 
 The details, down to the addresses in the game's code, are in [findings.md](findings.md).
 
-[tzar]: https://store.steampowered.com/app/825730/
+[tzar]: https://en.wikipedia.org/wiki/Tzar:_The_Burden_of_the_Crown

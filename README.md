@@ -57,11 +57,12 @@ include [cnc-ddraw](https://github.com/FunkyFr3sh/cnc-ddraw) by FunkyFr3sh, unde
 - [Tzar: The Burden of the Crown][tzar], its executable, data files, artwork, music and trademarks belong to their
   respective owners. This repository contains none of them, and the mod will only ever ship its own changes (patches and
   configuration), never the game's files. The screenshots show the game's art, which belongs to its owners too.
-- The mod doesn't remove or get around any copy protection, and it won't. To use it, buy the game on [Steam][tzar]
+- The mod doesn't remove or get around any copy protection, and it won't. To use it, buy the game on [Steam][steam]
   or [GOG][gog].
 - The game's files are only changed on your computer, in your copy. Removing the mod puts the originals back, and
   so do Steam's "Verify integrity of game files" and Heroic's "Verify and Repair".
 
-[tzar]: https://store.steampowered.com/app/825730/
+[tzar]: https://en.wikipedia.org/wiki/Tzar:_The_Burden_of_the_Crown
+[steam]: https://store.steampowered.com/app/825730/
 [gog]: https://www.gog.com/en/game/tzar_the_burden_of_the_crown
 [haemimont]: https://www.haemimontgames.com/
