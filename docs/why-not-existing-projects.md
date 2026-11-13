@@ -38,12 +38,7 @@ above claims to fix these yet, this mod included. Two leads from them, neither t
 
 ## What this mod can learn
 
-- **Taller resolutions**, as the HD Patch does up to 1920x1200: more of the map vertically too ([#2][i2]).
-- **CD music** on Windows and Linux, as the Ready2Play Launcher and the GOG Preservation Patch have, if the tracks can
-  be found legally.
-- **Crash fixes**: try the two leads above.
-- **The bottom and right panel layouts** ([#5](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/5)): none of
-  the widescreen fixes supports them either.
+It's in the mod's [GitHub issues](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues).
 
 ## Not compared
 

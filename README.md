@@ -3,12 +3,12 @@
 An unofficial fan mod that runs [Tzar][tzar] ([Haemimont Games][haemimont], 2000) at a widescreen resolution, such
 as 21:9 for an ultrawide monitor, so the game shows more of the map instead of stretching a 4:3 picture.
 
-- [How it works](docs/how-it-works.md)
-- [Why not existing projects](docs/why-not-existing-projects.md)
-
 ![Tzar at 1832x768 with the left panel, scaled up to a 3440x1440 ultrawide monitor](docs/screenshots/tzar-1832x768-ultrawide.png)
 
 *The game at 1832x768, scaled to fill a 3440x1440 monitor. The original goes up to 1024x768.*
+
+- [How it works](docs/how-it-works.md)
+- [Why not existing projects](docs/why-not-existing-projects.md)
 
 ## Install
 
