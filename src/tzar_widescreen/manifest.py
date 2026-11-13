@@ -34,10 +34,12 @@ class Manifest:
             return None
         except (OSError, ValueError) as error:
             raise DamagedManifest(f"{path} can't be read ({error})") from error
+        if not isinstance(data, dict):
+            raise DamagedManifest(f"{path} isn't a JSON object")
         known = {f.name for f in fields(cls)}
         try:
             manifest = cls(**{key: value for key, value in data.items() if key in known})
-        except TypeError as error:  # not an object, or "version" missing
+        except TypeError as error:  # "version" missing
             raise DamagedManifest(f"{path} is incomplete ({error})") from error
         manifest._check(path)
         return manifest
