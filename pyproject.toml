@@ -1,7 +1,7 @@
 [project]
 name = "ttbotc-resolution-mod"
 # Semantic versioning (https://semver.org), released from tags vX.Y.Z: see CONTRIBUTING.md.
-version = "0.1.0"
+version = "0.2.0"
 description = "Widescreen mod for Tzar: The Burden of the Crown: the original game at 21:9"
 readme = "README.md"
 license = "MIT"

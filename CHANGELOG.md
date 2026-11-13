@@ -2,6 +2,14 @@
 
 Versions follow [semantic versioning](https://semver.org). Each version's section here becomes its release notes.
 
+## 0.2.0 (2026-11-13)
+
+- Choose the resolution: the installer detects your screen and offers the width with the same shape, presets for
+  16:10 (1232x768), 16:9 (1368x768) and 21:9 (1832x768), or any width from 1032 to 2198. The height stays 768
+  ([#11](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/11)).
+- Running the installer again when the mod is installed offers to change the resolution, not only to remove the
+  mod. `--width` sets it from the command line.
+
 ## 0.1.0 (2026-11-13)
 
 First release.
