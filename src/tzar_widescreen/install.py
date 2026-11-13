@@ -5,19 +5,18 @@ manifest of what was done, so uninstalling restores the game exactly. Installing
 reverted the exe in an update) works from those backups.
 """
 
-import json
 import shutil
 from dataclasses import dataclass
 from pathlib import Path
 
 from tzar_widescreen import __version__, cnc_ddraw, exe_patch, frame, ini, resolutions
 from tzar_widescreen.game import resolve
+from tzar_widescreen.manifest import DamagedManifest, Manifest
 
 HEIGHT = resolutions.HEIGHT
 LAYOUT = "LAYOUT1024L"
 
 BACKUP_DIR = "tzar-widescreen-backup"
-MANIFEST = "manifest.json"
 EXE = "Tzar_.exe"
 TZAR_INI = "tzar.ini"
 LAYOUT_INI = "DATA/LAYOUT.INI"
@@ -48,11 +47,13 @@ def _backup(game_dir: Path) -> Path:
     return game_dir / BACKUP_DIR
 
 
-def _manifest(game_dir: Path) -> dict | None:
+def _manifest(game_dir: Path) -> Manifest | None:
     try:
-        return json.loads((_backup(game_dir) / MANIFEST).read_text(encoding="utf-8"))
-    except (OSError, ValueError):
-        return None
+        return Manifest.load(_backup(game_dir))
+    except DamagedManifest as error:
+        raise InstallError(f"the mod's backup record is damaged: {error}. The original files are still in "
+                           f"{BACKUP_DIR}/; restore them by hand, or use Steam's Verify integrity of game files "
+                           f"and delete that folder") from error
 
 
 def status(game_dir: Path) -> Status:
@@ -62,8 +63,8 @@ def status(game_dir: Path) -> Status:
         error = None
     except (OSError, exe_patch.UnknownExe) as e:
         exe, error = None, str(e)
-    return Status(manifest is not None, manifest.get("version") if manifest else None,
-                  manifest.get("width") if manifest else None, exe, error)
+    return Status(manifest is not None, manifest.version if manifest else None,
+                  manifest.width if manifest else None, exe, error)
 
 
 def _write(path: Path, data: bytes) -> None:
@@ -106,16 +107,16 @@ def install(game_dir: Path, width: int = resolutions.DEFAULT_WIDTH, log=print) -
                 data = exe_patch.original(data)  # in case it was patched by hand before
             dst.write_bytes(data)
         tzar_ini = ini.read(paths[TZAR_INI])
-        manifest = {
-            "version": __version__,
-            "tzar_ini": {f"{s}/{k}": ini.get_key(tzar_ini, s, k) for s, k, _ in TZAR_INI_KEYS},
-            "moved_aside": [],
-        }
+        manifest = Manifest(
+            version=__version__,
+            width=width,
+            tzar_ini={f"{s}/{k}": ini.get_key(tzar_ini, s, k) for s, k, _ in TZAR_INI_KEYS},
+        )
         for name in cnc_ddraw.FILES:  # someone else's ddraw.dll and the like: keep them to put back later
             existing = game_dir / name
             if existing.exists():
                 shutil.move(existing, backup / name)
-                manifest["moved_aside"].append(name)
+                manifest.moved_aside.append(name)
 
     log(f"Patching {EXE}")
     _write(paths[EXE], exe_patch.apply((backup / EXE).read_bytes(), width, HEIGHT))
@@ -132,9 +133,9 @@ def install(game_dir: Path, width: int = resolutions.DEFAULT_WIDTH, log=print) -
     log("Installing cnc-ddraw")
     cnc_ddraw.install(game_dir, width, HEIGHT)
 
-    manifest["version"] = __version__
-    manifest["width"] = width
-    (backup / MANIFEST).write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    manifest.version = __version__
+    manifest.width = width
+    manifest.save(backup)
 
 
 def uninstall(game_dir: Path, log=print) -> None:
@@ -150,7 +151,7 @@ def uninstall(game_dir: Path, log=print) -> None:
         log(f"Restoring the settings the mod changed in {TZAR_INI}")
         text = ini.read(tzar_ini)
         for section, key, _ in TZAR_INI_KEYS:
-            old = manifest.get("tzar_ini", {}).get(f"{section}/{key}")
+            old = manifest.tzar_ini.get(f"{section}/{key}")
             if old is not None:
                 text = ini.set_key(text, section, key, old)
         _write(tzar_ini, text.encode("latin-1"))
@@ -161,6 +162,6 @@ def uninstall(game_dir: Path, log=print) -> None:
             shutil.rmtree(path)
         elif path.exists():
             path.unlink()
-    for name in manifest.get("moved_aside", []):
+    for name in manifest.moved_aside:
         shutil.move(backup / name, game_dir / name)
     shutil.rmtree(backup)
