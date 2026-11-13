@@ -2,6 +2,7 @@
 
 Usage: uv run python src/tools/build_release.py
 Needs cnc-ddraw's files first: uv run python src/tools/fetch_cnc_ddraw.py
+and on Linux the music synthesizer: uv run python src/tools/fetch_soundfont.py && uv run python src/tools/build_music.py
 
 The version goes into the program's metadata too. On Windows it's a version resource, what Explorer shows under
 Properties, Details. ELF has no such field and file managers show none, so the Linux program gets the nearest thing:
@@ -108,6 +109,12 @@ def main() -> None:
         sys.exit("cnc-ddraw's files are missing: run src/tools/fetch_cnc_ddraw.py first")
     v = version("ttbotc-resolution-mod")
     platform = "windows" if sys.platform == "win32" else "linux"
+    # The music synthesizer is for Linux only: Windows plays the game's MIDI music itself.
+    music = []
+    if platform == "linux":
+        if not all((PACKAGE / "music" / name).is_file() for name in ("TZMUS.dll", "TZMUS.sf2", "TZMUS-LICENSES.txt")):
+            sys.exit("the music files are missing: run src/tools/fetch_soundfont.py and src/tools/build_music.py first")
+        music = ["--add-data", f"{PACKAGE / 'music'}{os.pathsep}tzar_widescreen/music"]
     # No version in the name: the README links to releases/latest/download/<name>, which always gets the newest one.
     # The program shows its version when it starts, and in its metadata (above).
     name = f"tzar-widescreen-{platform}"
@@ -123,6 +130,7 @@ def main() -> None:
             "--onefile", "--console", "--clean", "--noconfirm",
             "--name", name,
             "--add-data", f"{PACKAGE / 'cnc_ddraw'}{os.pathsep}tzar_widescreen/cnc_ddraw",
+            *music,
             "--copy-metadata", "ttbotc-resolution-mod",
             *extra,
             "--distpath", str(ROOT / "dist"),

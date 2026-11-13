@@ -8,5 +8,5 @@ deleted the program, run the line from [the install steps](install-linux-gog.md)
 
 [Heroic](https://heroicgameslauncher.com/) can put the game's files back: the game's **Verify and Repair**.
 
-Then delete what the mod added to the game folder (Heroic's default is `~/Games/Heroic/Tzar`): `ddraw.dll`,
-`ddraw.ini`, `Shaders` and `tzar-widescreen-backup`.
+Then delete what the mod added to the game folder (Heroic's default is `~/Games/Heroic/Tzar`): `ddraw.dll`, `ddraw.ini`,
+`Shaders`, `TZMUS.dll`, `TZMUS.sf2`, `TZMUS-LICENSES.txt` and `tzar-widescreen-backup`.

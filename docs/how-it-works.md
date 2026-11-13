@@ -1,8 +1,8 @@
 # How it works
 
-[Tzar: The Burden of the Crown][tzar] was made for screens up to 1024x768. The mod changes five things, and nothing
-else: the game's rules, AI and saves stay exactly as they were. The program keeps the original files and puts them
-back when you remove the mod.
+[Tzar: The Burden of the Crown][tzar] was made for screens up to 1024x768. The mod changes five things, and on Linux a
+sixth, and nothing else: the game's rules, AI and saves stay exactly as they were. The program keeps the original files
+and puts them back when you remove the mod.
 
 1. **14 bytes in the game's program** (`Tzar_.exe` on Steam, `Tzar.exe` on GOG: the same program). Four make the game's
    1024x768 mode use your width instead. Eight fix a limit in how the game redraws the map: to save work, it only
@@ -22,6 +22,10 @@ back when you remove the mod.
 5. **The version line on the main menu**, in its bottom-right corner, gets the mod's name and version in front:
    `ttbotc_resolution_mod 0.4.0. game Version 1.10, 2/03/2002`. The game takes the word "Version" from its text
    file `LOCAL/STRINGS.INI`, so that one line is all that changes.
+6. **On Linux, the music.** The game's music is MIDI, which Windows plays with a synthesizer of its own. Wine has
+   none, so on Linux the music was silent. The mod adds a small one to the game folder, `TZMUS.dll`, with the
+   instruments the music uses (`TZMUS.sf2`, from the FluidR3 GM soundfont), and points the game's sound functions at
+   it. The sound effects are left as they were. Windows keeps its own synthesizer.
 
 The details, down to the addresses in the game's code, are in [findings.md](findings.md).
 

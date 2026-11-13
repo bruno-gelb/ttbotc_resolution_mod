@@ -77,3 +77,21 @@ def test_width_value_lands_in_the_instruction():
     size = exe_patch.SIZE_PATCHES[0]
     offset = size.va - IMAGE_BASE + size.value_offset
     assert struct.unpack_from("<H", patched, offset)[0] == 1500
+
+
+def test_the_music_patch_renames_winmm_and_comes_off():
+    data = make_exe()
+    patched = exe_patch.apply(data, 1832, 768, music=True)
+    assert exe_patch.inspect(patched).music and not exe_patch.inspect(data).music
+    off = exe_patch.MUSIC_PATCH.va - 0x400000
+    assert patched[off:off + 10] == b"TZMUS.dll\0"
+    assert not exe_patch.inspect(exe_patch.apply(patched, 1832, 768)).music  # without music: back to WINMM.dll
+    assert exe_patch.original(patched) == data
+
+
+def test_an_unknown_import_name_is_refused():
+    data = bytearray(make_exe())
+    off = exe_patch.MUSIC_PATCH.va - 0x400000
+    data[off:off + 9] = b"OTHER.dll"
+    with pytest.raises(exe_patch.UnknownExe):
+        exe_patch.inspect(bytes(data))

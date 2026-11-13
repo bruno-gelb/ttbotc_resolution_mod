@@ -61,6 +61,12 @@ FIXED_PATCHES = [
     FixedPatch(0x4558D0, bytes.fromhex("750a"), bytes.fromhex("9090")),
 ]
 
+# Linux only: the game streams its MIDI music to Windows' MIDI output, and Wine has no synthesizer behind it. Renaming
+# the DLL the exe imports its sound functions from, WINMM.dll, to the mod's TZMUS.dll (same length, in the import
+# table's name strings, followed directly by WSOCK32.dll) makes the game, and only the game, use the mod's synthesizer
+# for MIDI; TZMUS.dll passes the wave and MCI functions on to the real winmm. No bound imports to update.
+MUSIC_PATCH = FixedPatch(0x580100, b"WINMM.dll", b"TZMUS.dll")
+
 
 class UnknownExe(Exception):
     """The exe isn't the Steam version 1.10, original or patched by this mod."""
@@ -72,6 +78,7 @@ class ExeState:
     total: int
     width: int
     height: int
+    music: bool = False  # MUSIC_PATCH applied
 
     @property
     def is_original(self) -> bool:
@@ -82,7 +89,7 @@ def _offsets(data: bytes) -> dict[int, int]:
     try:
         pe = pefile.PE(data=bytes(data), fast_load=True)
         base = pe.OPTIONAL_HEADER.ImageBase
-        vas = [p.va for p in SIZE_PATCHES] + [p.va for p in FIXED_PATCHES]
+        vas = [p.va for p in SIZE_PATCHES] + [p.va for p in FIXED_PATCHES] + [MUSIC_PATCH.va]
         offsets = {va: pe.get_offset_from_rva(va - base) for va in vas}
     except Exception as error:  # not a PE file, or the spots are outside it
         raise UnknownExe(f"not a Tzar_.exe this mod knows ({error})") from error
@@ -111,11 +118,15 @@ def inspect(data: bytes) -> ExeState:
             patched += 1
         elif cur != p.original:
             raise UnknownExe(f"unexpected bytes at {p.va:#x}: {cur.hex(' ')}")
-    return ExeState(patched, len(FIXED_PATCHES), sizes["width"], sizes["height"])
+    off = offsets[MUSIC_PATCH.va]
+    cur = bytes(data[off:off + len(MUSIC_PATCH.original)])
+    if cur not in (MUSIC_PATCH.original, MUSIC_PATCH.patched):
+        raise UnknownExe(f"unexpected bytes at {MUSIC_PATCH.va:#x}: {cur!r}")
+    return ExeState(patched, len(FIXED_PATCHES), sizes["width"], sizes["height"], cur == MUSIC_PATCH.patched)
 
 
-def apply(data: bytes, width: int, height: int) -> bytes:
-    """Return the exe with every patch applied for this screen size."""
+def apply(data: bytes, width: int, height: int, music: bool = False) -> bytes:
+    """Return the exe with every patch applied for this screen size, and with MUSIC_PATCH if music."""
     inspect(data)
     offsets = _offsets(data)
     out = bytearray(data)
@@ -124,6 +135,8 @@ def apply(data: bytes, width: int, height: int) -> bytes:
         struct.pack_into(p.fmt, out, offsets[p.va] + p.value_offset, values[p.which])
     for p in FIXED_PATCHES:
         out[offsets[p.va]:offsets[p.va] + len(p.patched)] = p.patched
+    music_bytes = MUSIC_PATCH.patched if music else MUSIC_PATCH.original
+    out[offsets[MUSIC_PATCH.va]:offsets[MUSIC_PATCH.va] + len(music_bytes)] = music_bytes
     return bytes(out)
 
 
@@ -132,7 +145,7 @@ def original(data: bytes) -> bytes:
     inspect(data)
     offsets = _offsets(data)
     out = bytearray(data)
-    for p in [*SIZE_PATCHES, *FIXED_PATCHES]:
+    for p in [*SIZE_PATCHES, *FIXED_PATCHES, MUSIC_PATCH]:
         out[offsets[p.va]:offsets[p.va] + len(p.original)] = p.original
     return bytes(out)
 

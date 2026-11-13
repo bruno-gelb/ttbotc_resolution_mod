@@ -14,3 +14,6 @@ src/tzar_widescreen/cnc_ddraw/
 build/
 dist/
 *.spec
+
+# The music DLL and its trimmed soundfont, built by src/tools/fetch_soundfont.py and build_music.py
+src/tzar_widescreen/music/

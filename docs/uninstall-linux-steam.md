@@ -10,6 +10,6 @@ Steam can put the game's files back: in your Library, right-click Tzar, then **P
 [**Verify integrity of game files**][verify]. It also resets the game's settings.
 
 Then delete what the mod added to the game folder (right-click Tzar, **Manage**, **Browse local files**): `ddraw.dll`,
-`ddraw.ini`, `Shaders` and `tzar-widescreen-backup`.
+`ddraw.ini`, `Shaders`, `TZMUS.dll`, `TZMUS.sf2`, `TZMUS-LICENSES.txt` and `tzar-widescreen-backup`.
 
 [verify]: https://help.steampowered.com/faqs/view/0C48-FCBD-DA71-93EB

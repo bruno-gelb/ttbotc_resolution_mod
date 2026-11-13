@@ -12,13 +12,13 @@ from pathlib import Path
 
 import pytest
 
-from tzar_widescreen import cnc_ddraw, exe_patch, heroic, install, proton, resolutions
+from tzar_widescreen import cnc_ddraw, exe_patch, heroic, install, music, proton, resolutions
 
 STEAM_EXE = "Tzar_.exe"  # the game on Steam; Steam's Tzar.exe is a small launcher for it
 GOG_EXE = "Tzar.exe"     # the game on GOG
 IMAGE_BASE = 0x400000
 TEXT_RVA = 0x1000
-TEXT_RAW = 0x159000  # big enough for every patch address, like the real .text section
+TEXT_RAW = 0x181000  # big enough for every patch address, the import table's WINMM.dll name included
 KEY = 0x03E0         # the green color key in the map view area
 ORNAMENT_PERIOD = 42
 
@@ -65,7 +65,7 @@ def make_exe() -> bytes:
     struct.pack_into("<IIIIIIHHI", headers, section + 8, TEXT_RAW, TEXT_RVA, TEXT_RAW, 0x1000, 0, 0, 0, 0,
                      0x60000020)
     data = headers + bytearray(TEXT_RAW)
-    for patch in [*exe_patch.SIZE_PATCHES, *exe_patch.FIXED_PATCHES]:
+    for patch in [*exe_patch.SIZE_PATCHES, *exe_patch.FIXED_PATCHES, exe_patch.MUSIC_PATCH]:
         offset = patch.va - IMAGE_BASE
         data[offset:offset + len(patch.original)] = patch.original
     return bytes(data)
@@ -106,6 +106,25 @@ def bundled_cnc_ddraw(tmp_path, monkeypatch):
     (bundle / "Shaders" / "test.glsl").write_text("// shader")
     monkeypatch.setattr(cnc_ddraw, "BUNDLED", bundle)
     return bundle
+
+
+@pytest.fixture(autouse=True)
+def bundled_music(tmp_path, monkeypatch):
+    """Stand-ins for the music DLL and soundfont, and Windows behaviour (no music fix) unless a test asks for
+    Linux's."""
+    bundle = tmp_path / "music"
+    bundle.mkdir()
+    for name in music.FILES:
+        (bundle / name).write_bytes(f"not really {name}".encode())
+    monkeypatch.setattr(music, "BUNDLED", bundle)
+    monkeypatch.setattr(music, "ENABLED", False)
+    return bundle
+
+
+@pytest.fixture
+def linux_music(monkeypatch):
+    """Linux: the installer adds the music synthesizer and points the exe's winmm import at it."""
+    monkeypatch.setattr(music, "ENABLED", True)
 
 
 @pytest.fixture(autouse=True)
