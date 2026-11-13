@@ -1,0 +1,2 @@
+# GitHub language stats: TinySoundFont is a vendored library, not the mod's own code
+native/third_party/** linguist-vendored
