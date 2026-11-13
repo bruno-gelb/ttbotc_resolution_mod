@@ -12,7 +12,7 @@ GOG's tools can put the game's files back:
 - **Heroic:** the game's **Verify and Repair**.
 - **GOG's offline installer:** run it again, into the same folder.
 
-Then delete what the mod added to the game folder, the one with `Tzar.exe` in it: `ddraw.dll`, `ddraw.ini`, `Shaders`
-and `tzar-widescreen-backup`.
+Then delete what the mod added to the game folder, the one with `Tzar.exe` in it: `ddraw.dll`, `ddraw.ini`,
+`ddraw-LICENSE.txt`, `Shaders` and `tzar-widescreen-backup`.
 
 [download]: https://github.com/bruno-gelb/ttbotc_resolution_mod/releases/latest/download/tzar-widescreen-windows.exe

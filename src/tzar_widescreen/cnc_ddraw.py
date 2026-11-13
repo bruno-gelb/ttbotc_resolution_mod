@@ -10,7 +10,8 @@ from pathlib import Path
 from tzar_widescreen import ini
 
 BUNDLED = Path(__file__).parent / "cnc_ddraw"
-FILES = ["ddraw.dll", "ddraw.ini", "Shaders"]
+# ddraw-LICENSE.txt is cnc-ddraw's MIT license, which has to go along with every copy of it.
+FILES = ["ddraw.dll", "ddraw.ini", "Shaders", "ddraw-LICENSE.txt"]
 
 
 def available() -> bool:
@@ -20,7 +21,11 @@ def available() -> bool:
 def install(game_dir: Path, width: int, height: int, exe: str) -> None:
     """Copy cnc-ddraw into the game folder and configure it for this screen size and the game's exe."""
     shutil.copy2(BUNDLED / "ddraw.dll", game_dir / "ddraw.dll")
-    shutil.copytree(BUNDLED / "Shaders", game_dir / "Shaders", dirs_exist_ok=True)
+    shutil.copy2(BUNDLED / "ddraw-LICENSE.txt", game_dir / "ddraw-LICENSE.txt")
+    # Replaced whole, so shaders a newer build no longer ships (the GPL xBRZ ones, for one) don't stay behind.
+    # A player's own Shaders folder was moved aside on the first install.
+    shutil.rmtree(game_dir / "Shaders", ignore_errors=True)
+    shutil.copytree(BUNDLED / "Shaders", game_dir / "Shaders")
     text = ini.read(BUNDLED / "ddraw.ini")
     for key, value in [
         ("fullscreen", "true"),               # fill the screen

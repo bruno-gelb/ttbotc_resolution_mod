@@ -57,7 +57,7 @@ uv run tzar-widescreen --help
 ```
 
 `fetch_cnc_ddraw.py` downloads cnc-ddraw's release (pinned, checksum verified) into `src/tzar_widescreen/cnc_ddraw/`,
-which git ignores. For the music on Linux, `fetch_soundfont.py` downloads Debian's FluidR3 GM package (pinned, checksum
+which git ignores, with its license as `ddraw-LICENSE.txt` and without the GPL xBRZ shaders. For the music on Linux, `fetch_soundfont.py` downloads Debian's FluidR3 GM package (pinned, checksum
 verified, 120 MB) and trims the soundfont to what Tzar's music plays, and `build_music.py` compiles `TZMUS.dll` with
 [Zig](https://ziglang.org/) (the `ziglang` package from `uv.lock`, so nothing else to install), both into
 `src/tzar_widescreen/music/`, which git ignores too. `tzar-widescreen status --game-dir "<game folder>"` shows what's

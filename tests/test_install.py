@@ -31,6 +31,7 @@ def test_install(game):
     assert ini.get_key(tzar_ini, "VIDEO", "DIRECTXDEVICE") == "0"
     assert (game / "ddraw.dll").read_bytes() == b"not really cnc-ddraw"
     assert (game / "Shaders" / "test.glsl").is_file()
+    assert (game / "ddraw-LICENSE.txt").read_text() == "MIT License, cnc-ddraw"  # its license goes with it
     backup = snapshot(game / install.BACKUP_DIR)
     for rel in install.BACKED_UP:
         assert backup[rel] == original[rel]  # the backup holds the originals
@@ -55,6 +56,16 @@ def test_uninstall_restores_everything(game):
     install.uninstall(game, log=quiet)
     assert snapshot(game) == original
     assert not (game / install.BACKUP_DIR).exists()
+
+
+def test_reinstall_drops_shaders_the_build_no_longer_has(game):
+    install.install(game, 1832, log=quiet)
+    stale = game / "Shaders" / "xbrz" / "xbrz-freescale-multipass.glsl"  # as an older build left it
+    stale.parent.mkdir()
+    stale.write_text("// GPL")
+    install.install(game, 1368, log=quiet)
+    assert not stale.parent.exists()
+    assert (game / "Shaders" / "test.glsl").is_file()
 
 
 def test_uninstall_keeps_the_players_own_settings(game):

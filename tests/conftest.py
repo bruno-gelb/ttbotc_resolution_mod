@@ -104,6 +104,7 @@ def bundled_cnc_ddraw(tmp_path, monkeypatch):
     (bundle / "ddraw.dll").write_bytes(b"not really cnc-ddraw")
     (bundle / "ddraw.ini").write_bytes(DDRAW_INI.encode("latin-1"))
     (bundle / "Shaders" / "test.glsl").write_text("// shader")
+    (bundle / "ddraw-LICENSE.txt").write_text("MIT License, cnc-ddraw")
     monkeypatch.setattr(cnc_ddraw, "BUNDLED", bundle)
     return bundle
 

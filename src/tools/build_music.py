@@ -13,6 +13,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import ziglang
+
 ROOT = Path(__file__).resolve().parents[2]
 NATIVE = ROOT / "native"
 OUT = ROOT / "src" / "tzar_widescreen" / "music"
@@ -47,11 +49,18 @@ def write_licenses() -> None:
     if not fluid.is_file():
         sys.exit("the soundfont's license is missing: run src/tools/fetch_soundfont.py first")
     tsf = (NATIVE / "third_party" / "tinysoundfont" / "LICENSE").read_text(encoding="utf-8")
+    zig = Path(ziglang.__file__).parent
+    zig_license = (zig / "LICENSE").read_text(encoding="utf-8")
+    mingw = (zig / "lib" / "libc" / "mingw" / "COPYING").read_text(encoding="utf-8")
     (OUT / "TZMUS-LICENSES.txt").write_text(
         "TZMUS.dll and TZMUS.sf2 play Tzar's music on Linux, for the Tzar widescreen mod\n"
         "(https://github.com/bruno-gelb/ttbotc_resolution_mod, MIT license).\n\n"
         "TZMUS.dll includes TinySoundFont (https://github.com/schellingb/TinySoundFont):\n\n"
         f"{tsf}\n\n"
+        "TZMUS.dll is compiled with Zig (https://ziglang.org/), and includes parts of Zig's compiler runtime:\n\n"
+        f"{zig_license}\n\n"
+        "and of the mingw-w64 runtime (https://www.mingw-w64.org/), which Zig links Windows DLLs with:\n\n"
+        f"{mingw}\n\n"
         f"{fluid.read_text(encoding='utf-8')}", encoding="utf-8")
 
 
