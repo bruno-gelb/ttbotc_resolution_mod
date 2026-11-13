@@ -1,15 +1,13 @@
-# Install on Windows, GOG version
-
-This is for the GOG version installed with GOG Galaxy, GOG's offline installer or Heroic.
+# Install on Windows, Steam version
 
 1. [Download the program][download] and double-click it. Windows may say it protected your PC, because the program
    isn't signed yet ([#25](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/25)): click **More info**,
    then **Run anyway**.
 2. Press Enter twice: the program finds the game, picks the resolution that matches your screen and installs the mod.
-3. Play as usual.
+3. Play from Steam as usual.
 
-To change the resolution, run the program again. Run it again after the game is updated too, to put the mod back.
-To remove the mod, see [Uninstall](uninstall-windows-gog.md).
+To change the resolution, run the program again. Run it again after a Steam update too, to put the mod back. To
+remove the mod, see [Uninstall](uninstall-steam.md).
 
 The mod hasn't been tried on Windows yet: if something goes wrong, please tell us in
 [#7](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/7).
@@ -21,7 +19,7 @@ The mod hasn't been tried on Windows yet: if something goes wrong, please tell u
   to fill your screen, keeping its shape.
 - From a terminal, `--width` skips the question, for example `tzar-widescreen-windows.exe --width 1368`. `--help`
   lists the rest.
-- If it can't find the game, copy the program into the game's folder, the one with `Tzar.exe` in it, and run it from
-  there.
+- If it can't find the game, copy the program into the game's folder (in Steam: right-click Tzar, **Manage**,
+  **Browse local files**) and run it from there.
 
 [download]: https://github.com/bruno-gelb/ttbotc_resolution_mod/releases/latest/download/tzar-widescreen-windows.exe

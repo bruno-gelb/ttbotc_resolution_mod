@@ -14,19 +14,19 @@ as 21:9 for an ultrawide monitor, so the game shows more of the map instead of s
 
 You need [Tzar: The Burden of the Crown][tzar].
 
-- [Windows + Steam](docs/install-windows-steam.md)
-- [Windows + GOG](docs/install-windows-gog.md)
-- [Linux + Steam](docs/install-linux-steam.md)
-- [Linux + GOG](docs/install-linux-gog.md)
+- [Windows + Steam](docs/windows/install-steam.md)
+- [Windows + GOG](docs/windows/install-gog.md)
+- [Linux + Steam](docs/linux/install-steam.md)
+- [Linux + GOG](docs/linux/install-gog.md)
 
 ## Uninstall
 
 Run the program again and choose to remove the mod, or let your launcher put the game's files back:
 
-- [Windows + Steam](docs/uninstall-windows-steam.md)
-- [Windows + GOG](docs/uninstall-windows-gog.md)
-- [Linux + Steam](docs/uninstall-linux-steam.md)
-- [Linux + GOG](docs/uninstall-linux-gog.md)
+- [Windows + Steam](docs/windows/uninstall-steam.md)
+- [Windows + GOG](docs/windows/uninstall-gog.md)
+- [Linux + Steam](docs/linux/uninstall-steam.md)
+- [Linux + GOG](docs/linux/uninstall-gog.md)
 
 ## Help wanted
 
