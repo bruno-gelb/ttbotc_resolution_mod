@@ -2,7 +2,7 @@
 
 Versions follow [semantic versioning](https://semver.org). Each version's section here becomes its release notes.
 
-## Unreleased
+## 0.4.0 (2026-11-13)
 
 - The main menu shows the mod's version: its version line in the bottom-right corner now reads
   `ttbotc_resolution_mod 0.4.0. game Version 1.10, 2/03/2002`. Removing the mod puts the game's line back
