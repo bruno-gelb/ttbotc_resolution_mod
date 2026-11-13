@@ -23,6 +23,10 @@ class Manifest:
     tzar_ini: dict[str, str | None] = field(default_factory=dict)
     # Files that were in the game folder before the mod (someone else's ddraw.dll), kept in the backup to put back.
     moved_aside: list[str] = field(default_factory=list)
+    # Linux: whether the mod set the ddraw override in Tzar's Proton prefix, and the ddraw line that was there before
+    # (None if there wasn't one), to put back on uninstall. Older versions used a launch option instead.
+    proton_override: bool = False
+    proton_previous: str | None = None
 
     @classmethod
     def load(cls, backup_dir: Path) -> "Manifest | None":
@@ -48,7 +52,9 @@ class Manifest:
         ok = (isinstance(self.version, str) and isinstance(self.width, int)
               and isinstance(self.tzar_ini, dict) and all(isinstance(k, str) for k in self.tzar_ini)
               and all(v is None or isinstance(v, str) for v in self.tzar_ini.values())
-              and isinstance(self.moved_aside, list) and all(isinstance(n, str) for n in self.moved_aside))
+              and isinstance(self.moved_aside, list) and all(isinstance(n, str) for n in self.moved_aside)
+              and isinstance(self.proton_override, bool)
+              and (self.proton_previous is None or isinstance(self.proton_previous, str)))
         if not ok:
             raise DamagedManifest(f"{path} has values of the wrong type")
 

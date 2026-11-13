@@ -6,10 +6,11 @@ reverted the exe in an update) works from those backups.
 """
 
 import shutil
+import time
 from dataclasses import dataclass
 from pathlib import Path
 
-from tzar_widescreen import __version__, cnc_ddraw, exe_patch, frame, ini, resolutions
+from tzar_widescreen import __version__, cnc_ddraw, exe_patch, frame, ini, proton, resolutions
 from tzar_widescreen.game import resolve
 from tzar_widescreen.manifest import DamagedManifest, Manifest
 
@@ -41,6 +42,8 @@ class Status:
     width: int | None  # what the mod was installed with
     exe: exe_patch.ExeState | None
     exe_error: str | None
+    # Linux: installed, but the ddraw override isn't in Tzar's Proton prefix (it didn't exist yet, or was recreated).
+    proton_missing: bool = False
 
 
 def _backup(game_dir: Path) -> Path:
@@ -63,8 +66,12 @@ def status(game_dir: Path) -> Status:
         error = None
     except (OSError, exe_patch.UnknownExe) as e:
         exe, error = None, str(e)
+    proton_missing = False
+    if manifest is not None and proton.ENABLED:
+        reg = proton.user_reg(game_dir)
+        proton_missing = not reg.is_file() or proton.current(proton.read(reg)) != proton.VALUE
     return Status(manifest is not None, manifest.version if manifest else None,
-                  manifest.width if manifest else None, exe, error)
+                  manifest.width if manifest else None, exe, error, proton_missing)
 
 
 def _write(path: Path, data: bytes) -> None:
@@ -78,8 +85,31 @@ def _view(width: int) -> str:
     return f"150,30,{width - 150},{HEIGHT - 30}"
 
 
-def install(game_dir: Path, width: int = resolutions.DEFAULT_WIDTH, log=print) -> None:
+def _check_not_running() -> None:
+    if proton.ENABLED and proton.game_running():
+        raise InstallError("Tzar is running: quit the game first")
+
+
+def _set_proton_override(game_dir: Path, manifest: Manifest, log) -> bool:
+    """Set the ddraw override in Tzar's Proton prefix. False if the prefix isn't there yet."""
+    reg = proton.user_reg(game_dir)
+    if not reg.is_file():
+        return False
+    text = proton.read(reg)
+    found = proton.current(text)
+    if found == proton.VALUE:
+        return True  # already set: by an earlier install, or by the player
+    log("Telling Proton to use cnc-ddraw, in Tzar's Proton prefix")
+    if not manifest.proton_override:
+        manifest.proton_override, manifest.proton_previous = True, found
+    _write(reg, proton.add(text, int(time.time())).encode("latin-1"))
+    return True
+
+
+def install(game_dir: Path, width: int = resolutions.DEFAULT_WIDTH, log=print) -> bool:
+    """Install the mod, or change its width. On Linux, False if Proton still needs the game to run once first."""
     resolutions.check(width)
+    _check_not_running()
     if not cnc_ddraw.available():
         raise InstallError("cnc-ddraw's files are missing from this build of the mod")
     paths = {rel: resolve(game_dir, rel) for rel in [EXE, TZAR_INI, LAYOUT_INI, FRAME]}
@@ -132,10 +162,12 @@ def install(game_dir: Path, width: int = resolutions.DEFAULT_WIDTH, log=print) -
     _write(paths[TZAR_INI], text.encode("latin-1"))
     log("Installing cnc-ddraw")
     cnc_ddraw.install(game_dir, width, HEIGHT)
+    ready = _set_proton_override(game_dir, manifest, log) if proton.ENABLED else True
 
     manifest.version = __version__
     manifest.width = width
     manifest.save(backup)
+    return ready
 
 
 def uninstall(game_dir: Path, log=print) -> None:
@@ -143,6 +175,7 @@ def uninstall(game_dir: Path, log=print) -> None:
     manifest = _manifest(game_dir)
     if manifest is None:
         raise InstallError("the mod isn't installed here (no backup folder found)")
+    _check_not_running()
     for rel in BACKED_UP:
         log(f"Restoring {rel}")
         _write(resolve(game_dir, rel), (backup / rel).read_bytes())
@@ -164,4 +197,8 @@ def uninstall(game_dir: Path, log=print) -> None:
             path.unlink()
     for name in manifest.moved_aside:
         shutil.move(backup / name, game_dir / name)
+    reg = proton.user_reg(game_dir)
+    if manifest.proton_override and reg.is_file():
+        log("Removing the override from Tzar's Proton prefix")
+        _write(reg, proton.remove(proton.read(reg), manifest.proton_previous).encode("latin-1"))
     shutil.rmtree(backup)

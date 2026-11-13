@@ -1,7 +1,7 @@
 import pytest
 
-from conftest import make_exe, make_frame, snapshot
-from tzar_widescreen import exe_patch, frame, ini, install, resolutions
+from conftest import USER_REG, make_exe, make_frame, snapshot
+from tzar_widescreen import exe_patch, frame, ini, install, proton, resolutions
 from tzar_widescreen.manifest import FILE, Manifest
 
 
@@ -134,3 +134,62 @@ def test_a_damaged_manifest_stops_everything(game):
 def test_uninstall_without_the_mod(game):
     with pytest.raises(install.InstallError, match="isn't installed"):
         install.uninstall(game, log=quiet)
+
+
+def test_linux_sets_and_removes_the_proton_override(game, prefix):
+    original = prefix.read_bytes()
+    assert install.install(game, 1832, log=quiet) is True
+    text = proton.read(prefix)
+    assert proton.current(text) == proton.VALUE
+    manifest = Manifest.load(game / install.BACKUP_DIR)
+    assert manifest.proton_override is True and manifest.proton_previous is None
+    assert not install.status(game).proton_missing
+    install.install(game, 1368, log=quiet)  # changing the width leaves it alone
+    assert proton.read(prefix) == text
+    install.uninstall(game, log=quiet)
+    assert prefix.read_bytes() == original
+
+
+def test_linux_puts_back_an_override_that_was_there(game, prefix):
+    before = proton.add(proton.read(prefix), 7).replace(proton.VALUE, '"ddraw"="builtin"')
+    prefix.write_bytes(before.encode("latin-1"))
+    install.install(game, 1832, log=quiet)
+    assert proton.current(proton.read(prefix)) == proton.VALUE
+    install.uninstall(game, log=quiet)
+    assert proton.read(prefix) == before
+
+
+def test_linux_leaves_alone_an_override_the_player_set(game, prefix):
+    before = proton.add(proton.read(prefix), 7)
+    prefix.write_bytes(before.encode("latin-1"))
+    install.install(game, 1832, log=quiet)
+    assert Manifest.load(game / install.BACKUP_DIR).proton_override is False
+    install.uninstall(game, log=quiet)
+    assert proton.read(prefix) == before
+
+
+def test_linux_without_a_prefix_yet(game, prefix):
+    prefix.unlink()
+    assert install.install(game, 1832, log=quiet) is False
+    check_installed(game, 1832)  # the game's files are done anyway
+    assert install.status(game).proton_missing
+    prefix.write_bytes(USER_REG.encode("latin-1"))  # the player started the game once
+    assert install.install(game, 1832, log=quiet) is True
+    assert not install.status(game).proton_missing
+    install.uninstall(game, log=quiet)
+    assert prefix.read_bytes() == USER_REG.encode("latin-1")
+
+
+def test_windows_never_touches_a_prefix(game, prefix, monkeypatch):
+    monkeypatch.setattr(proton, "ENABLED", False)
+    install.install(game, 1832, log=quiet)
+    assert prefix.read_bytes() == USER_REG.encode("latin-1")
+    assert not install.status(game).proton_missing
+
+
+def test_refuses_while_the_game_runs(game, prefix, monkeypatch):
+    monkeypatch.setattr(proton, "game_running", lambda: True)
+    original = snapshot(game)
+    with pytest.raises(install.InstallError, match="quit the game"):
+        install.install(game, 1832, log=quiet)
+    assert snapshot(game) == original

@@ -12,7 +12,6 @@ import click
 from tzar_widescreen import __version__, game, install, resolutions
 
 ISSUES = "https://github.com/bruno-gelb/ttbotc_resolution_mod/issues"
-LAUNCH_OPTIONS = 'WINEDLLOVERRIDES="ddraw=n,b" %command%'
 WIDTH = click.IntRange(resolutions.MIN_WIDTH, resolutions.MAX_WIDTH)
 HEIGHT = resolutions.HEIGHT
 
@@ -106,29 +105,30 @@ def _open_game(game_dir: Path | None) -> tuple[Path, install.Status]:
 
 
 def _do_install(path: Path, width: int) -> None:
-    install.install(path, width, log=lambda line: click.echo(f"  {line}"))
+    ready = install.install(path, width, log=lambda line: click.echo(f"  {line}"))
+    if not ready:
+        click.echo(f"\nAlmost done: the game's files are set for {width}x{HEIGHT}, but Proton hasn't set the game up")
+        click.echo("yet, so it would still use its own DirectDraw. Start Tzar once from Steam, quit it, and run this")
+        click.echo("program again.")
+        return
     click.echo(f"\nDone: the game runs at {width}x{HEIGHT}. Start it as usual.")
     click.echo("Keep the game's Menu Layout with the panel on the left: the other two don't work with the mod yet.")
     click.echo("To change the resolution or remove the mod, run this program again.")
-    if sys.platform != "win32":
-        click.echo("\nOn Linux, the game runs through Proton and needs one more thing, once:")
-        click.echo("in Steam, right-click Tzar, Properties, General, and set Launch Options to:\n")
-        click.echo(f"    {LAUNCH_OPTIONS}\n")
-        click.echo("It tells Proton to use the mod's DirectDraw (cnc-ddraw) instead of its own.")
 
 
 def _do_uninstall(path: Path) -> None:
     install.uninstall(path, log=lambda line: click.echo(f"  {line}"))
     click.echo("\nDone: the game is back to how it was.")
-    if sys.platform != "win32":
-        click.echo("You can clear Tzar's Launch Options in Steam now.")
 
 
 def _interactive(path: Path, state: install.Status) -> None:
     exe = state.exe
     reverted = exe is not None and (exe.patched < exe.total or exe.width == 1024)
-    if state.installed and reverted:
-        click.echo("The mod is installed, but the game's files were put back, probably by a Steam update.\n")
+    if state.installed and (reverted or state.proton_missing):
+        if reverted:
+            click.echo("The mod is installed, but the game's files were put back, probably by a Steam update.\n")
+        else:
+            click.echo("The mod is installed, but Tzar's Proton prefix doesn't have its setting yet.\n")
         picked = _menu("What now?", ["apply the mod again", "change the resolution and apply it",
                                      "remove the mod", "nothing"])
         if picked == 1:
