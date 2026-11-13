@@ -5,6 +5,7 @@ file. The C code is compiled with Zig from uv.lock (src/tools/build_music.py), h
 """
 
 import array
+import importlib.util
 import math
 import struct
 import subprocess
@@ -19,6 +20,8 @@ import build_music  # noqa: E402
 import soundfont  # noqa: E402
 
 RATE = 44100
+needs_zig = pytest.mark.skipif(importlib.util.find_spec("ziglang") is None,
+                               reason="needs Zig: uv sync installs it (ziglang in pyproject.toml)")
 GAME_IMPORTS = {
     "midiOutGetDevCapsA", "midiOutGetNumDevs", "midiOutGetVolume", "midiOutPrepareHeader", "midiOutReset",
     "midiOutSetVolume", "midiOutUnprepareHeader", "midiStreamClose", "midiStreamOpen", "midiStreamOut",
@@ -139,6 +142,7 @@ def render(tmp_path_factory) -> Path:
     return build_music.build_render(out)
 
 
+@needs_zig
 def test_the_core_plays_notes_on_time(render, tmp_path):
     sf2 = tmp_path / "test.sf2"
     sf2.write_bytes(soundfont.trim(make_sf2(SAMPLES, PRESETS), {(0, 0): set(range(36, 85))}))
@@ -159,6 +163,7 @@ def test_the_core_plays_notes_on_time(render, tmp_path):
     assert 1.5 < len(pcm) / 2 / RATE < 2.5
 
 
+@needs_zig
 def test_the_dll_has_the_games_imports(tmp_path):
     dll = build_music.build_dll(tmp_path)
     pe = pefile.PE(str(dll))
