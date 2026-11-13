@@ -36,6 +36,11 @@ jobs:
           fi
       - name: Fetch cnc-ddraw
         run: uv run --locked python src/tools/fetch_cnc_ddraw.py
+      - name: Build the music synthesizer (Linux only, Windows plays MIDI itself)
+        if: runner.os == 'Linux'
+        run: |
+          uv run --locked python src/tools/fetch_soundfont.py
+          uv run --locked python src/tools/build_music.py
       - name: Build
         run: uv run --locked python src/tools/build_release.py
       - name: Smoke test

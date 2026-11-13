@@ -47,7 +47,9 @@ don't currently have a machine with it: see [#7](https://github.com/bruno-gelb/t
 
 The mod's own files (code, patches, documentation) are released under the [MIT License](LICENSE): use, change and
 share them freely. That license covers only what's in this repository. The programs on the releases page also
-include [cnc-ddraw](https://github.com/FunkyFr3sh/cnc-ddraw) by FunkyFr3sh, under its own MIT License.
+include [cnc-ddraw](https://github.com/FunkyFr3sh/cnc-ddraw) by FunkyFr3sh, under its own MIT License, and the Linux
+one, for the game's music, [TinySoundFont](https://github.com/schellingb/TinySoundFont) by Bernhard Schelling and
+part of the FluidR3 GM soundfont by Frank Wen, both under the MIT License.
 
 ## The game and its owners
 

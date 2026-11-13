@@ -21,6 +21,11 @@ What it takes today, for any width from 1032 to 2198 at 768 px high, with the le
   main menu shows in its bottom-right corner.
 - **[cnc-ddraw](https://github.com/FunkyFr3sh/cnc-ddraw)** (`cnc_ddraw.py`), which adds the display mode the game
   asks for and scales it to the monitor. Its files are bundled into the release programs.
+- **The music, on Linux** (`music.py`): `TZMUS.dll`, a stand-in for winmm with a MIDI synthesizer, since Wine has
+  none, and `TZMUS.sf2`, the instruments for it. The exe's winmm import is renamed to it (`exe_patch.MUSIC_PATCH`).
+  The DLL is C, in `native/tzmus/`: `core.c` plays winmm `midiStream` buffers through
+  [TinySoundFont](https://github.com/schellingb/TinySoundFont) (vendored in `native/third_party/`), `tzmus.c` is
+  the Windows side, and `render.c` plays a MIDI file into a WAV file through the same core, for listening tests.
 
 `install.py` puts it together: it backs up the original files to `tzar-widescreen-backup/` in the game folder, with a
 manifest, and puts them back on uninstall. `resolutions.py` holds the width limits and presets and detects the
@@ -44,13 +49,20 @@ uv run python src/tools/fetch_cnc_ddraw.py
 ```
 
 ```bash
+uv run python src/tools/fetch_soundfont.py && uv run python src/tools/build_music.py
+```
+
+```bash
 uv run tzar-widescreen --help
 ```
 
 `fetch_cnc_ddraw.py` downloads cnc-ddraw's release (pinned, checksum verified) into `src/tzar_widescreen/cnc_ddraw/`,
-which git ignores. `tzar-widescreen status --game-dir "<game folder>"` shows what's applied without changing anything.
-Test on a copy of the game's folder first: the program needs only `Tzar_.exe` (`Tzar.exe` for GOG), `tzar.ini`,
-`DATA/LAYOUT.INI` and `IMAGES/SCREENS/S_VIEW/SCREEN 1024 LEFT.BMP` in it.
+which git ignores. For the music on Linux, `fetch_soundfont.py` downloads Debian's FluidR3 GM package (pinned, checksum
+verified, 120 MB) and trims the soundfont to what Tzar's music plays, and `build_music.py` compiles `TZMUS.dll` with
+[Zig](https://ziglang.org/) (the `ziglang` package from `uv.lock`, so nothing else to install), both into
+`src/tzar_widescreen/music/`, which git ignores too. `tzar-widescreen status --game-dir "<game folder>"` shows what's
+applied without changing anything. Test on a copy of the game's folder first: the program needs only `Tzar_.exe`
+(`Tzar.exe` for GOG), `tzar.ini`, `DATA/LAYOUT.INI` and `IMAGES/SCREENS/S_VIEW/SCREEN 1024 LEFT.BMP` in it.
 
 Every third-party dependency is pinned to an exact version: Python in `.python-version`, packages in
 `pyproject.toml` and, with their whole tree, in `uv.lock`, cnc-ddraw by version and checksum in
@@ -78,7 +90,10 @@ uv run python src/tools/build_release.py
 
 `src/tools/` has scripts for development, run with `uv run python src/tools/<script>`:
 
-- `fetch_cnc_ddraw.py`, `build_release.py` and `release_notes.py`: the release build (above and below).
+- `fetch_cnc_ddraw.py`, `fetch_soundfont.py`, `build_music.py`, `build_release.py` and `release_notes.py`: the
+  release build (above and below). `soundfont.py` trims a SoundFont 2 file to the presets and notes a game uses.
+  `build_music.py --render <path>` also builds the native `render` program:
+  `render <soundfont.sf2> <music.mid> <out.wav> [seconds]`.
 - `probe.py` and `xref.py`: static analysis of the exe, with [pefile](https://github.com/erocarrera/pefile) and
   [Capstone](https://www.capstone-engine.org/). `probe.py` prints the exe's layout, its imports and hardcoded
   screen-size constants; `xref.py` finds strings, references to an address, struct fields and immediate values, and

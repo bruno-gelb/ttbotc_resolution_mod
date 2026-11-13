@@ -11,7 +11,7 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 
-from tzar_widescreen import __version__, cnc_ddraw, exe_patch, frame, game, ini, proton, resolutions
+from tzar_widescreen import __version__, cnc_ddraw, exe_patch, frame, game, ini, music, proton, resolutions
 from tzar_widescreen.game import resolve
 from tzar_widescreen.manifest import DamagedManifest, Manifest
 
@@ -167,6 +167,8 @@ def install(game_dir: Path, width: int = resolutions.DEFAULT_WIDTH, log=print) -
     _check_not_running()
     if not cnc_ddraw.available():
         raise InstallError("cnc-ddraw's files are missing from this build of the mod")
+    if music.ENABLED and not music.available():
+        raise InstallError("the music files are missing from this build of the mod")
     backup = _backup(game_dir)
     manifest = _manifest(game_dir)
     exe = _exe_name(game_dir, manifest) or game.EXES[0]
@@ -209,7 +211,7 @@ def install(game_dir: Path, width: int = resolutions.DEFAULT_WIDTH, log=print) -
                 manifest.moved_aside.append(name)
 
     log(f"Patching {exe}")
-    _write(paths[exe], exe_patch.apply((backup / exe).read_bytes(), width, HEIGHT))
+    _write(paths[exe], exe_patch.apply((backup / exe).read_bytes(), width, HEIGHT, music=music.ENABLED))
     log(f"Widening the map view in {LAYOUT_INI}")
     layout = ini.set_key(ini.read(backup / LAYOUT_INI), LAYOUT, "view", _view(width))
     _write(paths[LAYOUT_INI], layout.encode("latin-1"))
@@ -223,6 +225,9 @@ def install(game_dir: Path, width: int = resolutions.DEFAULT_WIDTH, log=print) -
     _label_main_menu(game_dir, backup, log)
     log("Installing cnc-ddraw")
     cnc_ddraw.install(game_dir, width, HEIGHT, exe)
+    if music.ENABLED:
+        log("Adding a MIDI synthesizer for the game's music, which Wine doesn't have")
+        music.install(game_dir)
     ready = _set_proton_override(game_dir, manifest, log) if proton.ENABLED else True
 
     manifest.version = __version__
@@ -252,8 +257,8 @@ def uninstall(game_dir: Path, log=print) -> None:
             if old is not None:
                 text = ini.set_key(text, section, key, old)
         _write(tzar_ini, text.encode("latin-1"))
-    log("Removing cnc-ddraw")
-    for name in cnc_ddraw.FILES:
+    log("Removing cnc-ddraw" + (" and the music synthesizer" if (game_dir / music.FILES[0]).exists() else ""))
+    for name in cnc_ddraw.FILES + music.FILES:
         path = game_dir / name
         if path.is_dir():
             shutil.rmtree(path)

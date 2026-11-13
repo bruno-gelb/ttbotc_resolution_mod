@@ -2,6 +2,13 @@
 
 Versions follow [semantic versioning](https://semver.org). Each version's section here becomes its release notes.
 
+## Unreleased
+
+- The game's music plays on Linux. It's MIDI, which Windows plays with a synthesizer of its own, and Wine has none, so
+  until now only the sound effects played. The mod adds a small synthesizer to the game folder for it, with the
+  instruments the music uses, and nothing to set up. Windows is unchanged
+  ([#45](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/45)).
+
 ## 0.5.0 (2026-11-13)
 
 - The GOG version works too. It's the same game as Steam's, with its program named `Tzar.exe` instead of

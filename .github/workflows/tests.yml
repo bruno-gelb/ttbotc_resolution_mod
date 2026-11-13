@@ -1,5 +1,6 @@
 # Runs the test suite on every pull request and every push to main, on Linux and Windows. The tests build synthetic
-# game files, so they need neither the game nor cnc-ddraw. Pinned like the release workflow.
+# game files, so they need neither the game nor cnc-ddraw, and a tiny synthetic soundfont for the music synthesizer,
+# which they compile with Zig from uv.lock. Pinned like the release workflow.
 name: Tests
 
 on:

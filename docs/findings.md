@@ -130,6 +130,39 @@ changing it only changes this line; the multiplayer version checks use the numbe
 game`), and the game shows only what comes before it. Tested 2026-11-13: with `| game ` in front, the menu read
 `ttbotc_resolution_mod 0.3.0 1.10, 2/03/2002`.
 
+## Music
+
+The game's music is 14 MIDI files in `MUSIC/` (`1.MID` to `10.MID`, `INTRO`, `OUTRO`, `WIN1`, `WIN2`), played with
+`CDAUDIO=0`. The game reads them itself and streams the notes to winmm: `Tzar_.exe` imports `midiStreamOpen`,
+`midiStreamOut`, `midiStreamRestart`, `midiStreamPause`, `midiStreamStop`, `midiStreamProperty`, `midiStreamClose`,
+`midiOutPrepareHeader`, `midiOutUnprepareHeader`, `midiOutReset`, `midiOutGetDevCapsA`, `midiOutGetNumDevs`,
+`midiOutSetVolume` and `midiOutGetVolume`, besides the `waveOut*` functions for its sound effects and
+`mciSendCommandA` for the CD audio mode. Windows synthesizes MIDI itself (Microsoft GS Wavetable Synth). Wine passes
+it to whatever synthesizer Linux has, and a desktop usually has none ("Midi Through" and PipeWire's MIDI ports make
+no sound), so under Proton, Steam's or Heroic's, the music was silent and only the sound effects played.
+
+The 14 files use 23 General MIDI programs, 22 of which play notes (Violin is selected but never plays), plus the
+standard drum kit in 8 of them (13 drum notes). Measured by merging each file's tracks in time and following each
+channel's program changes; no file changes the pitch bend range, so the default 2 semitones. Some send GS/XG bank
+selects (banks 1, 3, 123, 126, 127), which a General MIDI synthesizer falls back from to bank 0.
+
+**The fix, Linux only** (`native/tzmus/`, `music.py`):
+
+- `TZMUS.dll` exports the 26 winmm functions the game imports. The 14 MIDI ones run a synthesizer:
+  [TinySoundFont](https://github.com/schellingb/TinySoundFont) plays the `midiStream` buffers (MIDIEVENT records:
+  delta ticks, stream ID, event; tempo from `MEVT_TEMPO` and `midiStreamProperty`), rendered on a thread into the
+  real winmm's wave output, 44.1 kHz stereo, four 23 ms buffers. A soft limiter rounds off the rare peaks above full
+  scale (at most about 100 samples in a track) instead of clipping them. The 12 others go to the real winmm, loaded
+  from the system folder by full path. Callbacks (`MOM_DONE` and so on) are delivered outside the DLL's lock, the way
+  the game asked in `midiStreamOpen`.
+- The game, and only the game, uses it: the exe's import name `WINMM.dll` at `0x580100` becomes `TZMUS.dll`
+  (`exe_patch.MUSIC_PATCH`, same length, followed directly by `WSOCK32.dll`; no bound imports).
+- `TZMUS.sf2` is FluidR3 GM (MIT, from Debian's `fluid-soundfont-gm` 3.1-5.3) trimmed to those instruments and the
+  notes they reach, plus the 13 drums: 35 MB of the 148 MB bank (46 MB with whole instruments).
+
+Tested 2026-11-13 in the game, Steam (Proton) and GOG (Heroic, Proton-CachyOS): the music plays. It starts a couple
+of seconds after the menu appears, as in recordings of the game on Windows.
+
 ## Plan for a first test
 
 Keep the left-panel layout and change only the width, so nothing vertical moves:

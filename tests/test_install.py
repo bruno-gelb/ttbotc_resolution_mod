@@ -3,7 +3,7 @@ import json
 import pytest
 
 from conftest import GOG_EXE, STEAM_EXE, STRINGS_INI, USER_REG, make_exe, make_frame, snapshot
-from tzar_widescreen import __version__, exe_patch, frame, ini, install, proton, resolutions
+from tzar_widescreen import __version__, exe_patch, frame, ini, install, music, proton, resolutions
 from tzar_widescreen.manifest import FILE, Manifest
 
 
@@ -353,3 +353,45 @@ def test_uninstalling_a_0_4_0_steam_install(game, prefix):
     install.uninstall(game, log=quiet)
     assert snapshot(game) == original
     assert prefix.read_bytes() == USER_REG.encode("latin-1")
+
+
+# Music on Linux: Wine has no MIDI synthesizer, so the installer adds one (TZMUS.dll and its soundfont) and renames
+# the exe's winmm import to it. Windows plays the music itself and gets neither. Same code for Steam and GOG.
+
+
+@pytest.mark.parametrize("which", ["steam", "gog"])
+def test_linux_adds_the_music_synthesizer_and_removes_it(which, game, gog_game, linux_music):
+    folder, exe = (game, STEAM_EXE) if which == "steam" else (gog_game, GOG_EXE)
+    original = snapshot(folder)
+    install.install(folder, 1832, log=quiet)
+    assert exe_patch.inspect((folder / exe).read_bytes()).music
+    assert b"TZMUS.dll" in (folder / exe).read_bytes() and b"WINMM.dll" not in (folder / exe).read_bytes()
+    for name in music.FILES:
+        assert (folder / name).read_bytes() == f"not really {name}".encode()
+    assert (folder / install.BACKUP_DIR / exe).read_bytes() == make_exe()  # the backup keeps WINMM.dll
+    install.install(folder, 1368, log=quiet)
+    assert exe_patch.inspect((folder / exe).read_bytes()).music
+    install.uninstall(folder, log=quiet)
+    assert snapshot(folder) == original
+
+
+def test_windows_keeps_its_own_midi(game):
+    install.install(game, 1832, log=quiet)
+    assert not exe_patch.inspect((game / STEAM_EXE).read_bytes()).music
+    assert not any((game / name).exists() for name in music.FILES)
+
+
+def test_music_files_missing_from_the_build(game, linux_music, bundled_music):
+    (bundled_music / "TZMUS.sf2").unlink()
+    original = snapshot(game)
+    with pytest.raises(install.InstallError, match="music files are missing"):
+        install.install(game, 1832, log=quiet)
+    assert snapshot(game) == original
+
+
+def test_upgrading_an_install_without_music_adds_it(game, monkeypatch):
+    install.install(game, 1832, log=quiet)  # as 0.5.0 did on Linux: no music fix
+    monkeypatch.setattr(music, "ENABLED", True)
+    install.install(game, 1832, log=quiet)
+    assert exe_patch.inspect((game / STEAM_EXE).read_bytes()).music
+    assert all((game / name).is_file() for name in music.FILES)

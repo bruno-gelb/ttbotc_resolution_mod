@@ -213,7 +213,8 @@ def status_command(ctx: click.Context, game_dir: Path | None) -> None:
     _, state = _open_game(game_dir or ctx.obj["game_dir"])
     if state.exe:
         click.echo(f"{state.exe_name}: {state.exe.width}x{state.exe.height}, "
-                   f"{state.exe.patched} of {state.exe.total} fixes applied")
+                   f"{state.exe.patched} of {state.exe.total} fixes applied"
+                   + (", music through the mod's synthesizer" if state.exe.music else ""))
 
 
 def main() -> None:

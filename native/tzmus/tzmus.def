@@ -1,0 +1,29 @@
+; TZMUS.dll's exports: the 26 winmm functions Tzar_.exe imports, under winmm's names. See tzmus.c.
+LIBRARY TZMUS.dll
+EXPORTS
+    midiOutGetDevCapsA = tz_midiOutGetDevCapsA@12
+    midiOutGetNumDevs = tz_midiOutGetNumDevs@0
+    midiOutGetVolume = tz_midiOutGetVolume@8
+    midiOutPrepareHeader = tz_midiOutPrepareHeader@12
+    midiOutReset = tz_midiOutReset@4
+    midiOutSetVolume = tz_midiOutSetVolume@8
+    midiOutUnprepareHeader = tz_midiOutUnprepareHeader@12
+    midiStreamClose = tz_midiStreamClose@4
+    midiStreamOpen = tz_midiStreamOpen@24
+    midiStreamOut = tz_midiStreamOut@12
+    midiStreamPause = tz_midiStreamPause@4
+    midiStreamProperty = tz_midiStreamProperty@12
+    midiStreamRestart = tz_midiStreamRestart@4
+    midiStreamStop = tz_midiStreamStop@4
+    mciSendCommandA = tz_mciSendCommandA@16
+    waveOutClose = tz_waveOutClose@4
+    waveOutGetDevCapsA = tz_waveOutGetDevCapsA@12
+    waveOutGetNumDevs = tz_waveOutGetNumDevs@0
+    waveOutGetPosition = tz_waveOutGetPosition@12
+    waveOutGetVolume = tz_waveOutGetVolume@8
+    waveOutOpen = tz_waveOutOpen@24
+    waveOutPrepareHeader = tz_waveOutPrepareHeader@12
+    waveOutReset = tz_waveOutReset@4
+    waveOutSetVolume = tz_waveOutSetVolume@8
+    waveOutUnprepareHeader = tz_waveOutUnprepareHeader@12
+    waveOutWrite = tz_waveOutWrite@12
