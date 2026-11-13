@@ -8,7 +8,6 @@ import os
 import shutil
 import subprocess
 import sys
-from importlib.metadata import version
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -18,9 +17,10 @@ PACKAGE = ROOT / "src" / "tzar_widescreen"
 def main() -> None:
     if not (PACKAGE / "cnc_ddraw" / "ddraw.dll").is_file():
         sys.exit("cnc-ddraw's files are missing: run src/tools/fetch_cnc_ddraw.py first")
-    v = version("ttbotc-resolution-mod")
     platform = "windows" if sys.platform == "win32" else "linux"
-    name = f"tzar-widescreen-{v}-{platform}"
+    # No version in the name: the README links to releases/latest/download/<name>, which always gets the newest one.
+    # The program shows its version when it starts.
+    name = f"tzar-widescreen-{platform}"
     subprocess.run([
         sys.executable, "-m", "PyInstaller",
         "--onefile", "--console", "--clean", "--noconfirm",

@@ -9,37 +9,42 @@ as 21:9 for an ultrawide monitor, so the game shows more of the map instead of s
 
 ## Install
 
-You need [Tzar: The Burden of the Crown][tzar] from Steam (game version 1.10), installed. Other versions, like GOG's
-or the original CD, aren't supported yet ([#9](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/9)).
-On Linux, start the game from Steam once before installing the mod, so that Proton sets it up.
+You need [Tzar: The Burden of the Crown][tzar] from Steam. The GOG and CD versions aren't supported yet
+([#9](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/9)).
 
-1. Download the program for your system from the [latest release](https://github.com/bruno-gelb/ttbotc_resolution_mod/releases/latest).
-2. Run it.
-   - **Windows:** double-click it. Windows may say it protected your PC, because the program isn't signed: click
-     **More info**, then **Run anyway**.
-   - **Linux:** open a terminal in the folder you downloaded it to and run:
+1. Get the program and start it:
+   - **Windows:** [download it][windows] and double-click it.
+   - **Linux:** start the game from Steam once, so that Proton sets it up. Then run this in a terminal:
 
      ```bash
-     chmod +x tzar-widescreen-*-linux && ./tzar-widescreen-*-linux
+     curl -fLO https://github.com/bruno-gelb/ttbotc_resolution_mod/releases/latest/download/tzar-widescreen-linux && chmod +x tzar-widescreen-linux && ./tzar-widescreen-linux
      ```
 
-3. It finds the game and asks which resolution you want. The height is always 768; the width sets the shape:
-   - **matches your screen**, the first choice: it detects your screen and picks the width with the same shape;
-   - **1232x768** for 16:10 screens, **1368x768** for 16:9, **1832x768** for 21:9 ultrawides;
-   - or any width from 1032 to 2198.
+2. Press Enter twice: the program finds the game, picks the resolution that matches your screen and installs the mod.
+3. Play from Steam as usual.
 
-   The game's picture is scaled to fill your screen and keeps its shape. Press Enter to take the first choice, then
-   Enter again to install.
-4. Play from Steam as usual.
+To change the resolution or remove the mod, run the program again. Run it again after a Steam update too, to put the
+mod back.
 
-If it can't find the game, copy the program into the game's folder and run it from there.
+<details>
+<summary>Windows says it protected your PC</summary>
 
-**To change the resolution or remove the mod**, run the program again: it sees the mod and asks what to do. Removing
-it puts the game's original files back. After a Steam update or "Verify integrity of game files", run it again to
-apply the mod again.
+The program isn't signed yet ([#25](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/25)), so Windows
+doesn't know it. Click **More info**, then **Run anyway**.
 
-From a terminal, `--width` skips the question, for example `tzar-widescreen-...-linux --width 1368`; `--help` lists
-the rest.
+</details>
+
+<details>
+<summary>Other resolutions, the command line, and when it can't find the game</summary>
+
+- Besides the width that matches your screen, the program offers 1232x768 for 16:10 screens, 1368x768 for 16:9 and
+  1832x768 for 21:9 ultrawides, or any width from 1032 to 2198. The height is always 768, and the picture is scaled
+  to fill your screen, keeping its shape.
+- From a terminal, `--width` skips the question, for example `./tzar-widescreen-linux --width 1368`. `--help` lists
+  the rest.
+- If it can't find the game, copy the program into the game's folder and run it from there.
+
+</details>
 
 ## How it works
 
@@ -103,3 +108,4 @@ include [cnc-ddraw](https://github.com/FunkyFr3sh/cnc-ddraw) by FunkyFr3sh, unde
 
 [tzar]: https://store.steampowered.com/app/825730/
 [haemimont]: https://www.haemimontgames.com/
+[windows]: https://github.com/bruno-gelb/ttbotc_resolution_mod/releases/latest/download/tzar-widescreen-windows.exe
