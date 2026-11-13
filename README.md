@@ -19,12 +19,12 @@ You need [Tzar: The Burden of the Crown][tzar] from Steam or [GOG][gog]. The ori
 
 ## Uninstall
 
-Run the program again and choose to remove the mod. It puts the game's original files back.
+Run the program again and choose to remove the mod, or let your launcher put the game's files back:
 
-Without the program, Steam can put them back too: in your Library, right-click Tzar, then **Properties**,
-**Installed Files**, [**Verify integrity of game files**](https://help.steampowered.com/faqs/view/0C48-FCBD-DA71-93EB).
-In Heroic, it's the game's **Verify and Repair**. That leaves the few files the mod added in the game folder: delete
-`ddraw.dll`, `ddraw.ini`, `Shaders` and `tzar-widescreen-backup` too.
+- [Windows + Steam](docs/uninstall-windows-steam.md)
+- [Windows + GOG](docs/uninstall-windows-gog.md)
+- [Linux + Steam](docs/uninstall-linux-steam.md)
+- [Linux + GOG](docs/uninstall-linux-gog.md)
 
 ## Compared to other projects
 
