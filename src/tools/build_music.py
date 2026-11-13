@@ -37,7 +37,8 @@ def build_dll(out: Path = OUT) -> Path:
 
 
 def build_render(out: Path) -> Path:
-    zig_cc("-o", str(out), str(NATIVE / "tzmus" / "render.c"), str(NATIVE / "tzmus" / "core.c"), "-lm")
+    libm = [] if sys.platform == "win32" else ["-lm"]  # Windows' C runtime has the math functions built in
+    zig_cc("-o", str(out), str(NATIVE / "tzmus" / "render.c"), str(NATIVE / "tzmus" / "core.c"), *libm)
     return out
 
 
