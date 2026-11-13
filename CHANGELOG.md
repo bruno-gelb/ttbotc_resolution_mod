@@ -2,6 +2,11 @@
 
 Versions follow [semantic versioning](https://semver.org). Each version's section here becomes its release notes.
 
+## Unreleased
+
+- The programs carry their version in their file metadata: on Windows under Properties, Details, on Linux as a
+  package note that `readelf -n` shows ([#32](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/32)).
+
 ## 0.3.0 (2026-11-13)
 
 - Linux: no more Steam launch options. The installer tells Proton to use cnc-ddraw in Tzar's own Proton settings, and
