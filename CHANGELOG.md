@@ -2,11 +2,14 @@
 
 Versions follow [semantic versioning](https://semver.org). Each version's section here becomes its release notes.
 
-## Unreleased
+## 0.2.1 (2026-11-13)
 
 - The program's command line is rebuilt with [Click](https://click.palletsprojects.com/en/stable/): `install`,
   `uninstall` and `status` each have their own `--help`, and wrong options get clearer messages. Everything that
   worked before still works ([#14](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/14)).
+- If the mod's backup record (`tzar-widescreen-backup/manifest.json`) gets damaged, the program now says so and how
+  to recover. Before, it treated the mod as not installed and blamed other software for the changed game files
+  ([#16](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/16)).
 
 ## 0.2.0 (2026-11-13)
 
