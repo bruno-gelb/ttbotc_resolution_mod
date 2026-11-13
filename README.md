@@ -10,7 +10,7 @@ as 21:9 for an ultrawide monitor, so the game shows more of the map instead of s
 
 ## Install
 
-You need [Tzar: The Burden of the Crown][tzar] from Steam or [GOG][gog].
+You need [Tzar: The Burden of the Crown][tzar].
 
 - [Windows + Steam](docs/install-windows-steam.md)
 - [Windows + GOG](docs/install-windows-gog.md)
