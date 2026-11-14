@@ -1,6 +1,7 @@
 # Contributing
 
-Notes for working on the mod. For what it is and how to play it, see the [README](README.md).
+Notes for working on the mod. For what it is and how to play it, see the [README](README.md). Every change follows
+its [principles](README.md#principles): no game files in the mod, and a lightweight, strictly technical scope.
 
 ## How it works
 

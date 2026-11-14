@@ -28,6 +28,15 @@ Run the program again and choose to remove the mod, or let your launcher put the
 - [Linux + Steam](docs/linux/uninstall-steam.md)
 - [Linux + GOG](docs/linux/uninstall-gog.md)
 
+## Principles
+
+- **No game files.** The mod never ships any of the game's code or assets: its executables, data, art, music or
+  text. Whatever it needs from the game is made on the player's computer, from their own copy: the wider in-game
+  frame, for one, is made from the game's own bitmap.
+- **Lightweight and strictly technical.** The mod fixes how the game runs on today's hardware (widescreen
+  resolutions, the in-game layout, scaling, and the music on Linux) and stays small and easy to remove. No gameplay
+  or balance changes, no new content, no reworked art.
+
 ## Help wanted
 
 Known problems and plans are [GitHub issues](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues). Bug
