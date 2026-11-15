@@ -106,9 +106,9 @@ def _write(path: Path, data: bytes) -> None:
     tmp.replace(path)
 
 
-def _view(width: int) -> str:
+def _view(width: int, height: int = HEIGHT) -> str:
     """The map view in LAYOUT.INI: right of the 150 px panel, below the 30 px top bar."""
-    return f"150,30,{width - 150},{HEIGHT - 30}"
+    return f"150,30,{width - 150},{height - 30}"
 
 
 def _check_not_running() -> None:
@@ -160,9 +160,11 @@ def _label_main_menu(game_dir: Path, backup: Path, log) -> None:
     _write(path, text.encode("latin-1"))
 
 
-def install(game_dir: Path, width: int = resolutions.DEFAULT_WIDTH, log=print) -> bool:
+def install(game_dir: Path, width: int = resolutions.DEFAULT_WIDTH, log=print, height: int = HEIGHT) -> bool:
     """Install the mod, or change its width. On Linux, False if the launcher still needs to start the game once first,
-    to create its Wine prefix."""
+    to create its Wine prefix.
+
+    height: experimental (issue #50), not offered to players yet. The frame bitmap stays 768 px high."""
     resolutions.check(width)
     _check_not_running()
     if not cnc_ddraw.available():
@@ -211,9 +213,9 @@ def install(game_dir: Path, width: int = resolutions.DEFAULT_WIDTH, log=print) -
                 manifest.moved_aside.append(name)
 
     log(f"Patching {exe}")
-    _write(paths[exe], exe_patch.apply((backup / exe).read_bytes(), width, HEIGHT, music=music.ENABLED))
+    _write(paths[exe], exe_patch.apply((backup / exe).read_bytes(), width, height, music=music.ENABLED))
     log(f"Widening the map view in {LAYOUT_INI}")
-    layout = ini.set_key(ini.read(backup / LAYOUT_INI), LAYOUT, "view", _view(width))
+    layout = ini.set_key(ini.read(backup / LAYOUT_INI), LAYOUT, "view", _view(width, height))
     _write(paths[LAYOUT_INI], layout.encode("latin-1"))
     log("Widening the frame around the map")
     _write(paths[FRAME], frame.widen((backup / FRAME).read_bytes(), width))
@@ -224,7 +226,7 @@ def install(game_dir: Path, width: int = resolutions.DEFAULT_WIDTH, log=print) -
     _write(paths[TZAR_INI], text.encode("latin-1"))
     _label_main_menu(game_dir, backup, log)
     log("Installing cnc-ddraw")
-    cnc_ddraw.install(game_dir, width, HEIGHT, exe)
+    cnc_ddraw.install(game_dir, width, height, exe)
     if music.ENABLED:
         log("Adding a MIDI synthesizer for the game's music, which Wine doesn't have")
         music.install(game_dir)
