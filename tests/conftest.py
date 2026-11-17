@@ -12,7 +12,7 @@ from pathlib import Path
 
 import pytest
 
-from tzar_widescreen import cnc_ddraw, exe_patch, heroic, install, music, proton, resolutions
+from tzar_widescreen import cnc_ddraw, exe_patch, heroic, install, music, proton, report, resolutions
 
 STEAM_EXE = "Tzar_.exe"  # the game on Steam; Steam's Tzar.exe is a small launcher for it
 GOG_EXE = "Tzar.exe"     # the game on GOG
@@ -138,6 +138,12 @@ def screen(monkeypatch):
 def no_heroic(monkeypatch):
     """No Heroic installs unless a test sets them up: the machine's own Heroic settings stay out of the tests."""
     monkeypatch.setattr(heroic, "CONFIG_DIRS", [])
+
+
+@pytest.fixture(autouse=True)
+def no_game_reported(monkeypatch):
+    """The report's game folder is set by the program as it runs: each test starts without one."""
+    monkeypatch.setattr(report, "game_dir", None)
 
 
 @pytest.fixture(autouse=True)

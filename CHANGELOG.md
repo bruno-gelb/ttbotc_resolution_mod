@@ -2,6 +2,14 @@
 
 Versions follow [semantic versioning](https://semver.org). Each version's section here becomes its release notes.
 
+## Unreleased
+
+- When the program can't go on, it shows a link that starts a GitHub issue with the details already filled in: the
+  error, the mod's version, the system, and the game's folder and exe, enough to tell one build of the game from
+  another. Your user name is cut out of the paths, and nothing is sent until you submit the issue. An unexpected
+  error, a bug in the mod, now shows it too, and on Windows the window stays open instead of closing at once
+  ([#66](https://github.com/bruno-gelb/ttbotc_resolution_mod/issues/66)).
+
 ## 0.6.1 (2026-11-13)
 
 - The licenses of everything the programs bundle now go along with them, as those licenses ask. cnc-ddraw's goes
