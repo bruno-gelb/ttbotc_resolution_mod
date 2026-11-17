@@ -2,7 +2,7 @@
 
 Versions follow [semantic versioning](https://semver.org). Each version's section here becomes its release notes.
 
-## Unreleased
+## 0.7.0 (2026-11-17)
 
 - When the program can't go on, it shows a link that starts a GitHub issue with the details already filled in: the
   error, the mod's version, the system, and the game's folder and exe, enough to tell one build of the game from
