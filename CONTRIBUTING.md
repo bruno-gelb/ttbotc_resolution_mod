@@ -33,7 +33,8 @@ manifest, and puts them back on uninstall. `resolutions.py` holds the width limi
 screen's shape, `game.py` finds the game (Steam libraries, Heroic's GOG installs through `heroic.py`, GOG's
 installer on Windows) and tells which exe is the game, `proton.py` sets the ddraw override in the game's Wine prefix
 on Linux, and `cli.py` is the `tzar-widescreen` program, built with
-[Click](https://click.palletsprojects.com/en/stable/).
+[Click](https://click.palletsprojects.com/en/stable/). When it fails, `report.py` gives it a link to a new GitHub
+issue with the details filled in.
 
 All the details, with addresses: [docs/findings.md](docs/findings.md).
 

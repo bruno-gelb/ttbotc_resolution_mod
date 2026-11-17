@@ -5,13 +5,13 @@ anything.
 """
 
 import sys
+import traceback
 from pathlib import Path
 
 import click
 
-from tzar_widescreen import __version__, game, install, proton, resolutions
+from tzar_widescreen import __version__, game, install, proton, report, resolutions
 
-ISSUES = "https://github.com/bruno-gelb/ttbotc_resolution_mod/issues"
 WIDTH = click.IntRange(resolutions.MIN_WIDTH, resolutions.MAX_WIDTH)
 HEIGHT = resolutions.HEIGHT
 
@@ -48,6 +48,7 @@ def _menu(title: str, options: list[str], default: int = 1) -> int:
 
 def _pick_game_dir(given: Path | None) -> Path:
     if given:
+        report.game_dir = given
         if not game.is_game_dir(given):
             raise install.InstallError(f"{given} doesn't look like the Tzar folder "
                                        f"(no {' or '.join(game.EXES)} in it)")
@@ -105,11 +106,11 @@ def _default_width() -> int:
 def _open_game(game_dir: Path | None) -> tuple[Path, install.Status]:
     click.echo(f"Tzar widescreen mod {__version__}\n")
     path = _pick_game_dir(game_dir)
+    report.game_dir = path
     state = install.status(path)
     click.echo(f"Game folder: {path}")
     if state.exe_error and not state.installed:
-        raise install.InstallError(f"this version of the game isn't supported yet ({state.exe_error}). "
-                                   f"Please tell us about it: {ISSUES}")
+        raise install.InstallError(f"this version of the game isn't supported yet ({state.exe_error})")
     if state.installed:
         size = f", {state.width}x{HEIGHT}" if state.width else ""
         click.echo(f"Mod: installed (version {state.version}{size})\n")
@@ -232,6 +233,16 @@ def status_command(ctx: click.Context, game_dir: Path | None) -> None:
                    + (", music through the mod's synthesizer" if state.exe.music else ""))
 
 
+def _offer_report(lead: str, message: str, trace: str | None = None) -> None:
+    try:
+        url = report.issue_url(message, trace)
+    except Exception:  # never let the report hide the error it's about
+        url = f"{report.ISSUES}/new"
+    click.echo(f"\n{lead} This link starts a GitHub issue with the details filled in; nothing is sent")
+    click.echo("until you submit it:")
+    click.echo(url)
+
+
 def main() -> None:
     # Started by double-click on Windows: keep the window open at the end so the result can be read.
     pause = sys.platform == "win32" and len(sys.argv) == 1
@@ -246,6 +257,13 @@ def main() -> None:
         code = error.exit_code
     except install.InstallError as error:
         click.echo(f"\nCan't continue: {error}")
+        _offer_report("Stuck?", str(error))
+        code = 1
+    except Exception as error:  # a bug in the mod: show it, and keep the window open for it
+        trace = traceback.format_exc()
+        click.echo(f"\n{trace.rstrip()}")
+        click.echo("\nSomething went wrong inside the mod: that's a bug in it, not something you did.")
+        _offer_report("Please tell us about it.", f"{type(error).__name__}: {error}", trace)
         code = 1
     if pause:
         click.pause("\nPress any key to close this window.")
